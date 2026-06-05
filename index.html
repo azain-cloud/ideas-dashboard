@@ -38,7 +38,7 @@ body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:v
 .theme-btn{background:#071a1e;border:1px solid var(--t2);border-radius:20px;padding:4px 10px;cursor:pointer;font-size:13px;color:var(--t4)}
 .hdr-badge{background:var(--t2);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;color:#fff;white-space:nowrap}
 
-/* ── SYNC STATUS (minimal inline) ── */
+/* ── SYNC STATUS ── */
 #syncStatus{font-size:11px;font-weight:400;color:var(--t4);white-space:nowrap;display:flex;align-items:center;gap:4px;transition:color .3s;margin-inline-start:auto;padding:0 6px}
 #syncStatus label{cursor:pointer;text-decoration:underline;color:inherit;font-weight:400}
 
@@ -157,9 +157,6 @@ body.light .lr-track{background:#e2e8f0}
 .lr-fill{height:100%;border-radius:3px;transition:width .4s}
 .lr-sub{font-size:10px;color:var(--sub);margin-top:3px}
 
-/* ── CHART SCROLL ── */
-.cscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-
 /* ── MISC ── */
 body.ltr{direction:ltr}
 body.ltr .ms-drop{right:auto;left:0}
@@ -239,9 +236,9 @@ body.ltr .ms-drop{right:auto;left:0}
       <option value="date" id="sortOptD">الأحدث</option>
     </select>
     <span class="flbl" id="lblFrom">من:</span>
-    <input type="date" class="finp" id="iDateFrom" value="2022-10-27" onchange="ideasPage=1;renderIdeas()">
+    <input type="date" class="finp" id="iDateFrom" onchange="ideasPage=1;renderIdeas()">
     <span class="flbl" id="lblTo">إلى:</span>
-    <input type="date" class="finp" id="iDateTo" value="2026-05-25" onchange="ideasPage=1;renderIdeas()">
+    <input type="date" class="finp" id="iDateTo" onchange="ideasPage=1;renderIdeas()">
     <button class="freset" id="iReset" onclick="resetIdeas()">إعادة ضبط</button>
     <span class="fcnt" id="iCount">...</span>
   </div>
@@ -254,9 +251,9 @@ body.ltr .ms-drop{right:auto;left:0}
     <div class="ms" id="msAS"><div class="ms-trg" onclick="msToggle('msAS')"><span id="msASLbl">الحالة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msASDrop"></div></div>
     <div class="ms" id="msAM"><div class="ms-trg" onclick="msToggle('msAM')"><span id="msAMLbl">الوحدة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msAMDrop"></div></div>
     <span class="flbl" id="aLblFrom">من:</span>
-    <input type="date" class="finp" id="aDateFrom" value="2022-10-27" onchange="runAnalysis()">
+    <input type="date" class="finp" id="aDateFrom" onchange="runAnalysis()">
     <span class="flbl" id="aLblTo">إلى:</span>
-    <input type="date" class="finp" id="aDateTo" value="2026-05-25" onchange="runAnalysis()">
+    <input type="date" class="finp" id="aDateTo" onchange="runAnalysis()">
     <button class="freset" id="aReset" onclick="resetAnalysis()">إعادة ضبط</button>
     <span class="fcnt" id="aCount">...</span>
   </div>
@@ -295,9 +292,9 @@ body.ltr .ms-drop{right:auto;left:0}
     <div class="ms" id="msTS"><div class="ms-trg" onclick="msToggle('msTS')"><span id="msTSLbl">الحالة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msTSDrop"></div></div>
     <div class="ms" id="msTM"><div class="ms-trg" onclick="msToggle('msTM')"><span id="msTMLbl">الوحدة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msTMDrop"></div></div>
     <span class="flbl" id="tLblFrom">من:</span>
-    <input type="date" class="finp" id="tDateFrom" value="2022-10-27" onchange="runTrends()">
+    <input type="date" class="finp" id="tDateFrom" onchange="runTrends()">
     <span class="flbl" id="tLblTo">إلى:</span>
-    <input type="date" class="finp" id="tDateTo" value="2026-05-25" onchange="runTrends()">
+    <input type="date" class="finp" id="tDateTo" onchange="runTrends()">
     <span class="flbl" id="tLblIv">الفترة:</span>
     <select class="fsel" id="ivSel" onchange="runTrends()">
       <option value="monthly" id="ivOptM">شهري</option>
@@ -321,25 +318,35 @@ body.ltr .ms-drop{right:auto;left:0}
   </div>
 </div>
 
-</div><script>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════════
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzKQfTboaBgkJI0DHLbvgBBgjvpDN6-oJJrO6st9OTWNimPse8UOZXWzs03V0rYAfYM/exec";
+const DATE_MIN = "2022-10-27";
+
 // ════════════════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════════════════
 let RAW = [];
 
 const S_CFG = {
-  "🚀تم الإطلاق":              {ar:"تم الإطلاق",    en:"Launched",       c:"#1BBE6E",bg:"#dcfce7"},
-  "📰 تم إضافة الفكرة":       {ar:"تم إضافة الفكرة", en:"Idea Added",     c:"#19A2A5",bg:"#cffafe"},
-  "🔍 قيد المراجعة":           {ar:"قيد المراجعة",    en:"Under Review",   c:"#F59E0B",bg:"#fef3c7"},
-  "⚒️ قيد التطوير":           {ar:"قيد التطوير",     en:"In Development", c:"#8B5CF6",bg:"#ede9fe"},
-  "✨ تم إطلاق نسخة تجريبية":  {ar:"نسخة تجريبية",   en:"Beta",            c:"#2563EB",bg:"#dbeafe"},
-  "🤝 التجهيز للتطوير":        {ar:"التجهيز للتطوير", en:"Ready for Dev",  c:"#EC4899",bg:"#fce7f3"},
+  "🚀تم الإطلاق":              {ar:"تم الإطلاق",     en:"Launched",       c:"#1BBE6E", bg:"#dcfce7"},
+  "📰 تم إضافة الفكرة":        {ar:"تم إضافة الفكرة", en:"Idea Added",     c:"#19A2A5", bg:"#cffafe"},
+  "🔍 قيد المراجعة":            {ar:"قيد المراجعة",    en:"Under Review",   c:"#F59E0B", bg:"#fef3c7"},
+  "⚒️ قيد التطوير":            {ar:"قيد التطوير",     en:"In Development", c:"#8B5CF6", bg:"#ede9fe"},
+  "✨ تم إطلاق نسخة تجريبية":   {ar:"نسخة تجريبية",   en:"Beta",           c:"#2563EB", bg:"#dbeafe"},
+  "🤝 التجهيز للتطوير":         {ar:"التجهيز للتطوير", en:"Ready for Dev",  c:"#EC4899", bg:"#fce7f3"},
 };
+
 const M_CLR = {
   "المبيعات والعملاء":"#19A2A5","المنتجات والمخزون":"#1BBFA0","التقارير":"#F59E0B",
   "المحاسبة":"#8B5CF6","المشتريات والموردين":"#EF4444","الربط مع التطبيقات":"#2563EB",
   "إعدادات الحساب":"#EC4899","لوحة التحكم":"#F97316","المخزون":"#17D4B8"
 };
+
 const M_EN = {
   "المبيعات والعملاء":"Sales & Customers","المنتجات والمخزون":"Products & Inventory",
   "التقارير":"Reports","المحاسبة":"Accounting","المشتريات والموردين":"Purchasing",
@@ -355,26 +362,30 @@ let ALL_MODULES  = [];
 // ════════════════════════════════════════════════════
 let lang = "en", dark = false, curTab = "ideas", ideasPage = 1;
 const PER = 15;
-const TODAY = new Date().toISOString().split("T")[0];
+
+// Computed fresh each time it's needed so the date is always accurate
+function getToday() {
+  return new Date().toISOString().split("T")[0];
+}
 
 const F = {
-  i: {status:[],module:[],from:"2022-10-27",to:TODAY},
-  a: {status:[],module:[],from:"2022-10-27",to:TODAY},
-  t: {status:[],module:[],from:"2022-10-27",to:TODAY,iv:"monthly"}
+  i: {status:[], module:[], from:DATE_MIN, to:getToday()},
+  a: {status:[], module:[], from:DATE_MIN, to:getToday()},
+  t: {status:[], module:[], from:DATE_MIN, to:getToday(), iv:"monthly"}
 };
 const MS_SEL = {};
 
-let chSt=null,chMod=null,chTrend=null,chML=null,chSL=null;
+let chSt=null, chMod=null, chTrend=null, chML=null, chSL=null;
 
 // ════════════════════════════════════════════════════
-// SYNC STATUS (minimal, bilingual)
+// SYNC STATUS
 // ════════════════════════════════════════════════════
 const SYNC_MSGS = {
-  fetching: {ar:"🔄 جارٍ التحميل...", en:"🔄 Fetching data...", color:"var(--t4)"},
-  success:  {ar:"✅ تم التحديث",      en:"✅ Dashboard updated", color:"var(--green)"},
-  error:    {ar:"❌ فشل الاتصال",     en:"❌ Connection failed",  color:"var(--red)"},
-  manual:   {ar:"📂 تم التحميل",     en:"📂 Data loaded",        color:"var(--green)"},
-  timeout:  {ar:"⚠️ تحميل يدوي",     en:"⚠️ Load manually",      color:"var(--orange)"},
+  fetching: {ar:"🔄 جارٍ التحميل...",  en:"🔄 Fetching data...",   color:"var(--t4)"},
+  success:  {ar:"✅ تم التحديث",       en:"✅ Dashboard updated",  color:"var(--green)"},
+  error:    {ar:"❌ فشل الاتصال",      en:"❌ Connection failed",   color:"var(--red)"},
+  manual:   {ar:"📂 تم التحميل",      en:"📂 Data loaded",         color:"var(--green)"},
+  timeout:  {ar:"⚠️ تحميل يدوي",      en:"⚠️ Load manually",       color:"var(--orange)"},
 };
 
 let _syncState = "fetching";
@@ -391,7 +402,6 @@ function renderSyncStatus() {
   if (!el) return;
   const msg = SYNC_MSGS[_syncState];
   el.style.color = msg.color;
-
   if (_syncState === "timeout") {
     el.innerHTML = msg[lang] + ' — <label style="cursor:pointer;text-decoration:underline;color:inherit" for="fallbackCsvPicker">' +
       (lang === "ar" ? "اختر ملف CSV" : "pick CSV") + '</label>';
@@ -403,15 +413,15 @@ function renderSyncStatus() {
 }
 
 // ════════════════════════════════════════════════════
-// LIVE SYNC
+// LIVE SYNC — Apps Script fetch (replaces gviz)
 // ════════════════════════════════════════════════════
 function initDashboardLiveSync() {
-  var sheetId = "1f3uqS-Fcxf6y15vxI48kXsKTCNtqltEbIi2PnTbH1rI";
 
+  // Fallback CSV picker (shown only on timeout)
   var fallbackInput = document.createElement("input");
-  fallbackInput.type = "file";
-  fallbackInput.id = "fallbackCsvPicker";
-  fallbackInput.accept = ".csv";
+  fallbackInput.type     = "file";
+  fallbackInput.id       = "fallbackCsvPicker";
+  fallbackInput.accept   = ".csv";
   fallbackInput.style.display = "none";
   document.body.appendChild(fallbackInput);
 
@@ -428,94 +438,93 @@ function initDashboardLiveSync() {
     });
   });
 
+  setSyncStatus("fetching");
+
+  // 12 s timeout — Apps Script cold-starts can be slow
   var timeoutId = setTimeout(function() {
     setSyncStatus("timeout");
-    renderSyncStatus();
-  }, 3500);
+  }, 12000);
 
-  var script = document.createElement("script");
-  script.src = "https://docs.google.com/spreadsheets/d/" + sheetId + "/gviz/tq?tqx=responseHandler:processEcosystemPayload";
-  script.onerror = function() {
+  // fetch with credentials so the org-restricted Web App receives
+  // the user's Google session cookie for authentication
+  fetch(APPS_SCRIPT_URL, {
+    method:   "GET",
+    redirect: "follow"
+  })
+  .then(function(res) {
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  })
+  .then(function(json) {
     clearTimeout(timeoutId);
+    if (json.error) throw new Error(json.error);
+    var now = new Date();
+    var timeStr = "(" +
+      String(now.getHours()).padStart(2,"0") + ":" +
+      String(now.getMinutes()).padStart(2,"0") + ")";
+    setSyncStatus("success", timeStr);
+    parseRawEcosystemData(json.data);
+  })
+  .catch(function(err) {
+    clearTimeout(timeoutId);
+    console.error("Dashboard fetch error:", err);
     setSyncStatus("error");
-  };
-  document.body.appendChild(script);
-
-  window._syncTimeoutId = timeoutId;
-}
-
-function fetchHeaderRowValue(rowObj, metricName) {
-  var matchedKey = Object.keys(rowObj).find(function(key) {
-    return key.toLowerCase().replace(/[\s_]/g, "") === metricName.toLowerCase().replace(/[\s_]/g, "");
   });
-  return matchedKey ? rowObj[matchedKey] : "";
 }
 
-window.processEcosystemPayload = function(response) {
-  if (window._syncTimeoutId) clearTimeout(window._syncTimeoutId);
-
-  if (!response || response.status !== "ok") {
-    setSyncStatus("error");
-    return;
+// ════════════════════════════════════════════════════
+// DATA PARSING
+// The Apps Script already returns clean objects keyed by
+// the exact header names from the sheet, so we access them
+// directly (case-insensitive fallback included).
+// ════════════════════════════════════════════════════
+function getField(obj, name) {
+  if (obj[name] !== undefined && obj[name] !== null) return String(obj[name]);
+  // case-insensitive + strip spaces/underscores fallback
+  const norm = name.toLowerCase().replace(/[\s_]/g, "");
+  for (const k of Object.keys(obj)) {
+    if (k.toLowerCase().replace(/[\s_]/g, "") === norm) return String(obj[k]);
   }
-
-  var table = response.table;
-  var cols = table.cols;
-  var rows = table.rows;
-
-  var labelMap = {};
-  cols.forEach(function(col, i) {
-    var rawLabel = col.label ? col.label.trim().toLowerCase().replace(/[\s_]/g, "") : "";
-    labelMap[rawLabel] = i;
-  });
-
-  var compiled = rows
-    .filter(function(r) { return r && r.c && r.c.some(function(c) { return c && c.v != null && c.v !== ""; }); })
-    .map(function(r) {
-      var c = r.c;
-      function cell(key) { return c[labelMap[key]] ? (c[labelMap[key]].v || "") : ""; }
-      function cellStr(key) { return String(cell(key)); }
-      function cellF(key) { return c[labelMap[key]] ? (c[labelMap[key]].f || cellStr(key)) : ""; }
-      return {
-        Idea_idx:           cellStr("ideaidx"),
-        Idea_content:       cellStr("ideacontent"),
-        Vote_count:         parseInt(cell("votecount"), 10) || 0,
-        Module:             cellStr("module"),
-        Status:             cellStr("status"),
-        Author_name:        cellStr("authorname"),
-        Author_idx:         cellStr("authoridx"),
-        Idea_creation_date: cellF("ideacreationdate") || cellStr("ideacreationdate"),
-        Idea_link:          cellStr("idealink") || "#"
-      };
-    });
-
-  var now = new Date();
-  var timeStr = "(" + String(now.getHours()).padStart(2,"0") + ":" + String(now.getMinutes()).padStart(2,"0") + ")";
-  setSyncStatus("success", timeStr);
-  parseRawEcosystemData(compiled);
-};
+  return "";
+}
 
 function parseRawEcosystemData(rawRows) {
   RAW = rawRows.map(function(row) {
-    var dateStr = getRowValue(row, "Idea_creation_date");
-    var cleanDate = dateStr ? (dateStr.indexOf("T") !== -1 ? dateStr.split("T")[0] : dateStr) : "";
+    var dateStr  = getField(row, "Idea_creation_date");
+    // Normalise date — strip time component if present
+    var cleanDate = dateStr
+      ? (dateStr.indexOf("T") !== -1 ? dateStr.split("T")[0] : dateStr.trim())
+      : "";
+
     return {
-      id:        getRowValue(row, "Idea_idx") || "unknown",
-      content:   getRowValue(row, "Idea_content") || "",
-      votes:     parseInt(getRowValue(row, "Vote_count"), 10) || 0,
-      module:    getRowValue(row, "Module") || "General",
-      status:    getRowValue(row, "Status") || "Idea Added",
-      author:    getRowValue(row, "Author_name") || "Anonymous",
-      authorIdx: getRowValue(row, "Author_idx") || "",
+      id:        getField(row, "Idea_idx")           || "unknown",
+      content:   getField(row, "Idea_content")       || "",
+      votes:     parseInt(getField(row, "Vote_count"), 10) || 0,
+      module:    getField(row, "Module")             || "General",
+      status:    getField(row, "Status")             || "Idea Added",
+      author:    getField(row, "Author_name")        || "Anonymous",
+      authorIdx: getField(row, "Author_idx")         || "",
       date:      cleanDate,
-      link:      getRowValue(row, "Idea_link") || "#"
+      link:      getField(row, "Idea_link")          || "#"
     };
   });
 
-  var dynamicStatuses = [...new Set(RAW.map(r => r.status).filter(Boolean))];
-  var dynamicModules  = [...new Set(RAW.map(r => r.module).filter(Boolean))];
-  ALL_STATUSES.length = 0; ALL_STATUSES.push(...dynamicStatuses);
-  ALL_MODULES.length  = 0; ALL_MODULES.push(...dynamicModules);
+  // Rebuild dynamic option lists
+  ALL_STATUSES.length = 0;
+  ALL_MODULES.length  = 0;
+  ALL_STATUSES.push(...[...new Set(RAW.map(r => r.status).filter(Boolean))]);
+  ALL_MODULES.push( ...[...new Set(RAW.map(r => r.module).filter(Boolean))]);
+
+  // Initialise date inputs to today on first load
+  const today = getToday();
+  ["iDateTo","aDateTo","tDateTo"].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && !el.value) el.value = today;
+  });
+  ["iDateFrom","aDateFrom","tDateFrom"].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && !el.value) el.value = DATE_MIN;
+  });
 
   applyLang();
   renderIdeas();
@@ -524,38 +533,52 @@ function parseRawEcosystemData(rawRows) {
 // ════════════════════════════════════════════════════
 // HELPERS
 // ════════════════════════════════════════════════════
-const tr = (ar, en) => lang === "ar" ? ar : en;
-const mName  = m => lang === "en" ? (M_EN[m] || m) : m;
-const sLabel = s => { const c = S_CFG[s]; return c ? (lang === "ar" ? c.ar : c.en) : s; };
-const mc  = m => M_CLR[m] || "#19A2A5";
-const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const tr     = (ar, en)  => lang === "ar" ? ar : en;
+const mName  = m         => lang === "en" ? (M_EN[m] || m) : m;
+const sLabel = s         => { const c = S_CFG[s]; return c ? (lang === "ar" ? c.ar : c.en) : s; };
+const mc     = m         => M_CLR[m] || "#19A2A5";
+const esc    = s         => String(s)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+  .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 
-function getRowValue(row, columnName) {
-  return fetchHeaderRowValue(row, columnName);
+function isLaunched(status) {
+  return status.indexOf("تم الإطلاق") !== -1 ||
+         status.toLowerCase().indexOf("launched") !== -1;
 }
 
 function getF(scope) {
   const f = scope === "i" ? F.i : scope === "a" ? F.a : F.t;
-  return RAW.filter(r => {
-    const dOk = !r.date || ((!f.from || r.date >= f.from) && (!f.to || r.date <= f.to));
-    const sOk = !f.status.length || f.status.includes(r.status);
-    const mOk = !f.module.length || f.module.includes(r.module);
+  return RAW.filter(function(r) {
+    var dOk = !r.date || (
+      (!f.from || r.date >= f.from) &&
+      (!f.to   || r.date <= f.to)
+    );
+    var sOk = !f.status.length || f.status.includes(r.status);
+    var mOk = !f.module.length || f.module.includes(r.module);
     return dOk && sOk && mOk;
   });
 }
 
 function getKey(d, iv) {
   const dt = new Date(d);
-  if (iv === "monthly")   return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}`;
-  if (iv === "quarterly") return `${dt.getFullYear()}-Q${Math.ceil((dt.getMonth()+1)/3)}`;
-  return `${dt.getFullYear()}`;
+  if (isNaN(dt)) return "";
+  if (iv === "monthly")   return dt.getFullYear() + "-" + String(dt.getMonth()+1).padStart(2,"0");
+  if (iv === "quarterly") return dt.getFullYear() + "-Q" + Math.ceil((dt.getMonth()+1)/3);
+  return String(dt.getFullYear());
 }
 
 function fmtKey(k, iv) {
   const AR = ["","يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
   const EN = ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  if (iv === "monthly")   { const [y,m] = k.split("-"); return `${lang==="ar"?AR[+m]:EN[+m]}'${String(y).slice(2)}`; }
-  if (iv === "quarterly") { const [y,q] = k.split("-"); return `${q}'${String(y).slice(2)}`; }
+  if (!k) return "";
+  if (iv === "monthly") {
+    const parts = k.split("-");
+    return (lang === "ar" ? AR[+parts[1]] : EN[+parts[1]]) + "'" + String(parts[0]).slice(2);
+  }
+  if (iv === "quarterly") {
+    const parts = k.split("-");
+    return parts[1] + "'" + String(parts[0]).slice(2);
+  }
   return k;
 }
 
@@ -568,12 +591,14 @@ function ccol() {
 }
 
 function destroyAll() {
-  [chSt, chMod, chTrend, chML, chSL].forEach(c => { if (c) { try { c.destroy(); } catch(e) {} } });
+  [chSt, chMod, chTrend, chML, chSL].forEach(function(c) {
+    if (c) { try { c.destroy(); } catch(e) {} }
+  });
   chSt = chMod = chTrend = chML = chSL = null;
-  ["cvStatus","cvModule","cvTrend","cvModLine","cvStLine"].forEach(id => {
-    const old = document.getElementById(id);
+  ["cvStatus","cvModule","cvTrend","cvModLine","cvStLine"].forEach(function(id) {
+    var old = document.getElementById(id);
     if (!old) return;
-    const fresh = document.createElement("canvas");
+    var fresh = document.createElement("canvas");
     fresh.id = id;
     old.parentNode.replaceChild(fresh, old);
   });
@@ -583,42 +608,42 @@ function destroyAll() {
 // LANG & THEME
 // ════════════════════════════════════════════════════
 const STRINGS = {
-  brandTitle:    {ar:"لوحة تحكم الأفكار",         en:"Ideas Dashboard"},
-  brandSub:      {ar:"آخر تحديث: مايو ٢٠٢٦",      en:"Latest Update"},
-  tabIdeas:      {ar:"💡 الأفكار",                 en:"💡 Ideas"},
-  tabAnalysis:   {ar:"📊 التحليل",                en:"📊 Analysis"},
-  tabTrends:     {ar:"📈 الاتجاهات",              en:"📈 Trends"},
-  kpiTotalLbl:   {ar:"إجمالي الأفكار",              en:"Total Ideas"},
-  kpiLaunchedLbl:{ar:"الأفكار المُطلقة",            en:"Launched Ideas"},
-  kpiVotesLbl:   {ar:"إجمالي التصويتات",          en:"Total Votes"},
-  kpiPendingLbl: {ar:"أفكار قيد المتابعة",          en:"Pending Ideas"},
-  kpiPendingSub: {ar:"مضافة ولم يُطلق بعد",        en:"Added, not launched yet"},
-  sortOptV:      {ar:"الأعلى تصويتاً",              en:"Most Voted"},
-  sortOptD:      {ar:"الأحدث",                     en:"Newest"},
-  lblFrom:       {ar:"من:",                         en:"From:"},
-  lblTo:         {ar:"إلى:",                        en:"To:"},
-  iReset:        {ar:"إعادة ضبط",                   en:"Reset"},
-  aReset:        {ar:"إعادة ضبط",                   en:"Reset"},
-  tReset:        {ar:"إعادة ضبط",                   en:"Reset"},
-  aLblFrom:      {ar:"من:",                         en:"From:"},
-  aLblTo:        {ar:"إلى:",                        en:"To:"},
-  tLblFrom:      {ar:"من:",                         en:"From:"},
-  tLblTo:        {ar:"إلى:",                        en:"To:"},
-  tLblIv:        {ar:"الفترة:",                     en:"Interval:"},
-  ivOptM:        {ar:"شهري",                        en:"Monthly"},
-  ivOptQ:        {ar:"ربع سنوي",                   en:"Quarterly"},
-  ivOptY:        {ar:"سنوي",                        en:"Yearly"},
-  aTitleStatus:  {ar:"الأفكار حسب الحالة",          en:"Ideas by Status"},
-  aSubStatus:    {ar:"اضغط على الحالة للتصفية 👆", en:"Click status to filter 👆"},
-  aTitleModule:  {ar:"الأفكار حسب الوحدة",          en:"Ideas by Module"},
-  aSubModule:    {ar:"اضغط على الوحدة للتصفية 👆", en:"Click module to filter 👆"},
-  aTitle20:      {ar:"🏆 أعلى 20 فكرة بالتصويتات", en:"🏆 Top 20 Ideas by Votes"},
+  brandTitle:    {ar:"لوحة تحكم الأفكار",           en:"Ideas Dashboard"},
+  brandSub:      {ar:"آخر تحديث: مايو ٢٠٢٦",        en:"Latest Update"},
+  tabIdeas:      {ar:"💡 الأفكار",                   en:"💡 Ideas"},
+  tabAnalysis:   {ar:"📊 التحليل",                  en:"📊 Analysis"},
+  tabTrends:     {ar:"📈 الاتجاهات",                en:"📈 Trends"},
+  kpiTotalLbl:   {ar:"إجمالي الأفكار",               en:"Total Ideas"},
+  kpiLaunchedLbl:{ar:"الأفكار المُطلقة",             en:"Launched Ideas"},
+  kpiVotesLbl:   {ar:"إجمالي التصويتات",            en:"Total Votes"},
+  kpiPendingLbl: {ar:"أفكار قيد المتابعة",           en:"Pending Ideas"},
+  kpiPendingSub: {ar:"مضافة ولم يُطلق بعد",          en:"Added, not launched yet"},
+  sortOptV:      {ar:"الأعلى تصويتاً",               en:"Most Voted"},
+  sortOptD:      {ar:"الأحدث",                       en:"Newest"},
+  lblFrom:       {ar:"من:",                           en:"From:"},
+  lblTo:         {ar:"إلى:",                          en:"To:"},
+  iReset:        {ar:"إعادة ضبط",                    en:"Reset"},
+  aReset:        {ar:"إعادة ضبط",                    en:"Reset"},
+  tReset:        {ar:"إعادة ضبط",                    en:"Reset"},
+  aLblFrom:      {ar:"من:",                           en:"From:"},
+  aLblTo:        {ar:"إلى:",                          en:"To:"},
+  tLblFrom:      {ar:"من:",                           en:"From:"},
+  tLblTo:        {ar:"إلى:",                          en:"To:"},
+  tLblIv:        {ar:"الفترة:",                       en:"Interval:"},
+  ivOptM:        {ar:"شهري",                          en:"Monthly"},
+  ivOptQ:        {ar:"ربع سنوي",                     en:"Quarterly"},
+  ivOptY:        {ar:"سنوي",                          en:"Yearly"},
+  aTitleStatus:  {ar:"الأفكار حسب الحالة",            en:"Ideas by Status"},
+  aSubStatus:    {ar:"اضغط على الحالة للتصفية 👆",   en:"Click status to filter 👆"},
+  aTitleModule:  {ar:"الأفكار حسب الوحدة",            en:"Ideas by Module"},
+  aSubModule:    {ar:"اضغط على الوحدة للتصفية 👆",   en:"Click module to filter 👆"},
+  aTitle20:      {ar:"🏆 أعلى 20 فكرة بالتصويتات",  en:"🏆 Top 20 Ideas by Votes"},
   aSub20:        {ar:"اضغط على الفكرة للذهاب في Frill 👆", en:"Click idea to open in Frill 👆"},
-  aTitle5:       {ar:"👥 أبرز 5 عملاء بالأفكار",   en:"👥 Top 5 Customers by Ideas"},
-  aTitleLR:      {ar:"📦 نسبة الإطلاق حسب الوحدة", en:"📦 Launch Rate by Module"},
-  tTitle1:       {ar:"🔄 اتجاه الأفكار عبر الزمن", en:"🔄 Ideas Trend Over Time"},
-  tTitle2:       {ar:"📊 اتجاه الأفكار حسب الوحدة",en:"📊 Trend by Module"},
-  tTitle3:       {ar:"📊 اتجاه الأفكار حسب الحالة",en:"📊 Trend by Status"},
+  aTitle5:       {ar:"👥 أبرز 5 عملاء بالأفكار",     en:"👥 Top 5 Customers by Ideas"},
+  aTitleLR:      {ar:"📦 نسبة الإطلاق حسب الوحدة",  en:"📦 Launch Rate by Module"},
+  tTitle1:       {ar:"🔄 اتجاه الأفكار عبر الزمن",  en:"🔄 Ideas Trend Over Time"},
+  tTitle2:       {ar:"📊 اتجاه الأفكار حسب الوحدة", en:"📊 Trend by Module"},
+  tTitle3:       {ar:"📊 اتجاه الأفكار حسب الحالة", en:"📊 Trend by Status"},
 };
 
 function applyLang() {
@@ -627,12 +652,12 @@ function applyLang() {
   document.body.classList.toggle("ltr", lang !== "ar");
   document.getElementById("lbAr").classList.toggle("active", lang === "ar");
   document.getElementById("lbEn").classList.toggle("active", lang === "en");
-  Object.entries(STRINGS).forEach(([id, v]) => {
-    const el = document.getElementById(id);
+  Object.entries(STRINGS).forEach(function([id, v]) {
+    var el = document.getElementById(id);
     if (el) el.textContent = v[lang];
   });
-  ["msIS","msIM","msAS","msAM","msTS","msTM"].forEach(id => updateMsLabel(id));
-  const si = document.getElementById("searchInput");
+  ["msIS","msIM","msAS","msAM","msTS","msTM"].forEach(updateMsLabel);
+  var si = document.getElementById("searchInput");
   if (si) si.placeholder = "🔍  " + (lang === "ar" ? "بحث في الأفكار..." : "Search ideas...");
   renderSyncStatus();
 }
@@ -642,7 +667,7 @@ const LOGO_EN = `<svg id="brandLogo" xmlns="http://www.w3.org/2000/svg" width="1
 
 function setLang(l) {
   lang = l;
-  const logoEl = document.getElementById("brandLogo");
+  var logoEl = document.getElementById("brandLogo");
   if (logoEl) logoEl.outerHTML = (l === "en" ? LOGO_EN : LOGO_AR);
   applyLang();
   if (RAW.length > 0) {
@@ -656,16 +681,19 @@ function toggleTheme() {
   dark = !dark;
   document.body.classList.toggle("light", !dark);
   document.getElementById("themeBtn").textContent = dark ? "☀️" : "🌙";
+  // Always rebuild charts regardless of which tab is visible
   destroyAll();
-  if (curTab === "analysis") runAnalysis();
-  if (curTab === "trends")   runTrends();
+  if (RAW.length > 0) {
+    if (curTab === "analysis") runAnalysis();
+    if (curTab === "trends")   runTrends();
+  }
 }
 
 // ── TABS ──
 function switchTab(t) {
   curTab = t;
-  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
-  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".panel").forEach(function(p) { p.classList.remove("active"); });
+  document.querySelectorAll(".tab-btn").forEach(function(b) { b.classList.remove("active"); });
   document.getElementById("panel" + t.charAt(0).toUpperCase() + t.slice(1)).classList.add("active");
   document.getElementById("tab"   + t.charAt(0).toUpperCase() + t.slice(1)).classList.add("active");
   if (RAW.length > 0) {
@@ -682,163 +710,176 @@ const MS_MAP = {
 };
 
 function msToggle(id) {
-  const dropEl = document.getElementById(id + "Drop");
-  const isOpen = dropEl.classList.contains("open");
-  document.querySelectorAll(".ms-drop").forEach(d => d.classList.remove("open"));
+  var dropEl = document.getElementById(id + "Drop");
+  var isOpen = dropEl.classList.contains("open");
+  document.querySelectorAll(".ms-drop").forEach(function(d) { d.classList.remove("open"); });
   if (!isOpen) { dropEl.classList.add("open"); buildMsDrop(id); }
 }
 
 function buildMsDrop(id) {
-  const {scope, key} = MS_MAP[id];
-  const sel  = MS_SEL[id] || [];
-  const opts = key === "status" ? ALL_STATUSES : ALL_MODULES;
-  const drop = document.getElementById(id + "Drop");
+  var ref  = MS_MAP[id];
+  var sel  = MS_SEL[id] || [];
+  var opts = ref.key === "status" ? ALL_STATUSES : ALL_MODULES;
+  var drop = document.getElementById(id + "Drop");
   drop.innerHTML = "";
 
-  const allDiv = document.createElement("div");
+  var allDiv = document.createElement("div");
   allDiv.className = "ms-all" + (sel.length === 0 ? " sel" : "");
   allDiv.textContent = tr("الكل","All");
-  allDiv.onclick = e => {
+  allDiv.onclick = function(e) {
     e.stopPropagation();
-    MS_SEL[id] = []; F[scope][key] = [];
-    updateMsLabel(id); drop.classList.remove("open"); triggerScope(scope);
+    MS_SEL[id] = []; F[ref.scope][ref.key] = [];
+    updateMsLabel(id); drop.classList.remove("open"); triggerScope(ref.scope);
   };
   drop.appendChild(allDiv);
 
-  opts.forEach(opt => {
-    const isSel = sel.includes(opt);
-    const div = document.createElement("div");
+  opts.forEach(function(opt) {
+    var isSel = sel.includes(opt);
+    var div = document.createElement("div");
     div.className = "ms-opt" + (isSel ? " sel" : "");
-    div.innerHTML = `<span class="ms-chk">${isSel ? "✓" : ""}</span><span>${key === "module" ? mName(opt) : (sLabel(opt) || opt)}</span>`;
-    div.onclick = e => {
+    div.innerHTML = '<span class="ms-chk">' + (isSel ? "✓" : "") + '</span><span>' +
+      (ref.key === "module" ? mName(opt) : (sLabel(opt) || opt)) + '</span>';
+    div.onclick = function(e) {
       e.stopPropagation();
-      const arr = MS_SEL[id] || (MS_SEL[id] = []);
-      const idx = arr.indexOf(opt);
+      var arr = MS_SEL[id] || (MS_SEL[id] = []);
+      var idx = arr.indexOf(opt);
       if (idx >= 0) arr.splice(idx, 1); else arr.push(opt);
-      F[scope][key] = [...arr];
-      buildMsDrop(id); updateMsLabel(id); triggerScope(scope);
+      F[ref.scope][ref.key] = arr.slice();
+      buildMsDrop(id); updateMsLabel(id); triggerScope(ref.scope);
     };
     drop.appendChild(div);
   });
 }
 
 function updateMsLabel(id) {
-  const {key} = MS_MAP[id] || {};
-  if (!key) return;
-  const sel   = MS_SEL[id] || [];
-  const lblEl = document.getElementById(id + "Lbl");
+  var ref = MS_MAP[id];
+  if (!ref) return;
+  var sel   = MS_SEL[id] || [];
+  var lblEl = document.getElementById(id + "Lbl");
   if (!lblEl) return;
-  const def = key === "status" ? tr("الحالة","Status") : tr("الوحدة","Module");
-  if (!sel.length)      lblEl.textContent = def;
-  else if (sel.length === 1) lblEl.textContent = key === "module" ? mName(sel[0]) : (sLabel(sel[0]) || sel[0]);
-  else                  lblEl.textContent = `${sel.length} ${tr("محدد","selected")}`;
+  var def = ref.key === "status" ? tr("الحالة","Status") : tr("الوحدة","Module");
+  if (!sel.length)       lblEl.textContent = def;
+  else if (sel.length === 1) lblEl.textContent = ref.key === "module" ? mName(sel[0]) : (sLabel(sel[0]) || sel[0]);
+  else                   lblEl.textContent = sel.length + " " + tr("محدد","selected");
 }
 
 function triggerScope(scope) {
-  if (scope === "i") { ideasPage = 1; renderIdeas(); }
+  if (scope === "i")      { ideasPage = 1; renderIdeas(); }
   else if (scope === "a") runAnalysis();
-  else runTrends();
+  else                    runTrends();
 }
 
-document.addEventListener("click", e => {
-  if (!e.target.closest(".ms")) document.querySelectorAll(".ms-drop").forEach(d => d.classList.remove("open"));
+document.addEventListener("click", function(e) {
+  if (!e.target.closest(".ms")) {
+    document.querySelectorAll(".ms-drop").forEach(function(d) { d.classList.remove("open"); });
+  }
 });
 
-// ── IDEAS TAB ──
+// ════════════════════════════════════════════════════
+// IDEAS TAB
+// ════════════════════════════════════════════════════
 function getIdeasData() {
   F.i.from = document.getElementById("iDateFrom").value;
   F.i.to   = document.getElementById("iDateTo").value;
-  const search = (document.getElementById("searchInput").value || "").toLowerCase();
-  let d = getF("i");
-  if (search) d = d.filter(r => (r.content||"").toLowerCase().includes(search) || (r.author||"").toLowerCase().includes(search));
-  const sort = document.getElementById("sortSel").value;
-  return d.sort((a,b) => sort === "votes" ? b.votes - a.votes : b.date.localeCompare(a.date));
+  var search = (document.getElementById("searchInput").value || "").toLowerCase();
+  var d = getF("i");
+  if (search) d = d.filter(function(r) {
+    return (r.content||"").toLowerCase().includes(search) ||
+           (r.author||"").toLowerCase().includes(search);
+  });
+  var sort = document.getElementById("sortSel").value;
+  return d.sort(function(a,b) {
+    return sort === "votes" ? b.votes - a.votes : b.date.localeCompare(a.date);
+  });
 }
 
 function renderIdeas() {
   if (RAW.length === 0) return;
-  const data   = getIdeasData();
+  var data   = getIdeasData();
   updateKPIs(data);
-  const total  = data.length;
-  document.getElementById("iCount").textContent = `${total} ${tr("فكرة","ideas")}`;
-  const totalP = Math.ceil(total / PER);
-  ideasPage    = Math.max(1, Math.min(ideasPage, totalP || 1));
-  const slice  = data.slice((ideasPage-1)*PER, ideasPage*PER);
+  var total  = data.length;
+  document.getElementById("iCount").textContent = total + " " + tr("فكرة","ideas");
+  var totalP = Math.ceil(total / PER);
+  ideasPage  = Math.max(1, Math.min(ideasPage, totalP || 1));
+  var slice  = data.slice((ideasPage-1)*PER, ideasPage*PER);
 
-  document.getElementById("ideasList").innerHTML = slice.map(r => {
-    const sc  = S_CFG[r.status] || {ar:r.status,en:r.status,c:"#19A2A5",bg:"#cffafe"};
-    const mc2 = mc(r.module);
-    const vc  = r.votes >= 50 ? "#F59E0B" : r.votes >= 20 ? "#19A2A5" : "#94a3b8";
-    return `<div class="idea-row" style="border-right:4px solid ${mc2}" data-href="${r.link||""}" onclick="openLink(this)">
-      <div class="ivote"><div class="ivnum" style="color:${vc}">${r.votes}</div><div class="ivlbl">🗳️</div></div>
-      <div class="ibody">
-        <div class="itxt">${esc(r.content.substring(0,180))}${r.content.length>180?"…":""}</div>
-        <div class="itags">
-          <span class="tag" style="background:${sc.bg};color:${sc.c}">${lang==="ar"?sc.ar:sc.en}</span>
-          <span class="tag" style="background:${mc2}22;color:${mc2};border:1px solid ${mc2}40">${mName(r.module)}</span>
-          <span class="tmeta">👤 ${esc(r.author)}</span>
-          <span class="tmeta">📅 ${r.date}</span>
-          ${r.link && r.link !== "#" ? `<span style="color:#19A2A5;font-size:10px">🔗 ${tr("رابط","Link")}</span>` : ""}
-        </div>
-      </div>
-    </div>`;
+  document.getElementById("ideasList").innerHTML = slice.map(function(r) {
+    var sc  = S_CFG[r.status] || {ar:r.status, en:r.status, c:"#19A2A5", bg:"#cffafe"};
+    var mc2 = mc(r.module);
+    var vc  = r.votes >= 50 ? "#F59E0B" : r.votes >= 20 ? "#19A2A5" : "#94a3b8";
+    return '<div class="idea-row" style="border-right:4px solid ' + mc2 + '" data-href="' + (r.link||"") + '" onclick="openLink(this)">' +
+      '<div class="ivote"><div class="ivnum" style="color:' + vc + '">' + r.votes + '</div><div class="ivlbl">🗳️</div></div>' +
+      '<div class="ibody">' +
+        '<div class="itxt">' + esc(r.content.substring(0,180)) + (r.content.length>180?"…":"") + '</div>' +
+        '<div class="itags">' +
+          '<span class="tag" style="background:' + sc.bg + ';color:' + sc.c + '">' + (lang==="ar"?sc.ar:sc.en) + '</span>' +
+          '<span class="tag" style="background:' + mc2 + '22;color:' + mc2 + ';border:1px solid ' + mc2 + '40">' + mName(r.module) + '</span>' +
+          '<span class="tmeta">👤 ' + esc(r.author) + '</span>' +
+          '<span class="tmeta">📅 ' + r.date + '</span>' +
+          (r.link && r.link !== "#" ? '<span style="color:#19A2A5;font-size:10px">🔗 ' + tr("رابط","Link") + '</span>' : "") +
+        '</div>' +
+      '</div>' +
+    '</div>';
   }).join("");
 
-  const pg = document.getElementById("pag");
+  var pg = document.getElementById("pag");
   if (totalP <= 1) { pg.innerHTML = ""; return; }
-  let html = `<button class="pb" onclick="goPg(${ideasPage-1})">&#8249;</button>`;
-  for (let i = 1; i <= totalP; i++) {
+  var html = '<button class="pb" onclick="goPg(' + (ideasPage-1) + ')">&#8249;</button>';
+  for (var i = 1; i <= totalP; i++) {
     if (totalP <= 7 || i === 1 || i === totalP || Math.abs(i-ideasPage) <= 2)
-      html += `<button class="pb${i===ideasPage?" active":""}" onclick="goPg(${i})">${i}</button>`;
+      html += '<button class="pb' + (i===ideasPage?" active":"") + '" onclick="goPg(' + i + ')">' + i + '</button>';
     else if (Math.abs(i-ideasPage) === 3)
-      html += `<span style="color:var(--sub);padding:4px">…</span>`;
+      html += '<span style="color:var(--sub);padding:4px">…</span>';
   }
-  html += `<button class="pb" onclick="goPg(${ideasPage+1})">&#8250;</button>`;
+  html += '<button class="pb" onclick="goPg(' + (ideasPage+1) + ')">&#8250;</button>';
   pg.innerHTML = html;
 }
 
 function goPg(p) {
-  const data = getIdeasData();
+  var data = getIdeasData();
   ideasPage = Math.max(1, Math.min(p, Math.ceil(data.length/PER) || 1));
   renderIdeas();
   window.scrollTo({top:0, behavior:"smooth"});
 }
 
 function updateKPIs(data) {
-  const total    = data.length;
-  const launched = data.filter(r => r.status.indexOf("تم الإطلاق") !== -1 || r.status.toLowerCase().indexOf("launched") !== -1).length;
-  const votes    = data.reduce((s,r) => s + r.votes, 0);
-  const pending  = total - launched;
-  const avg      = total ? (votes/total).toFixed(1) : 0;
-  const pct      = total ? ((launched/total)*100).toFixed(1) : 0;
-  document.getElementById("kpiTotal").textContent    = total.toLocaleString();
-  document.getElementById("kpiLaunched").textContent = launched.toLocaleString();
-  document.getElementById("kpiLaunchSub").textContent= `${pct}% ${tr("من الإجمالي","of total")}`;
-  document.getElementById("kpiVotes").textContent    = votes.toLocaleString();
-  document.getElementById("kpiAvgSub").textContent   = `${tr("متوسط","Avg")}: ${avg}`;
-  document.getElementById("kpiPending").textContent  = pending.toLocaleString();
-  document.getElementById("hdrBadge").textContent    = `📄 ${total}`;
+  var total    = data.length;
+  var launched = data.filter(function(r) { return isLaunched(r.status); }).length;
+  var votes    = data.reduce(function(s,r) { return s + r.votes; }, 0);
+  var pending  = total - launched;
+  var avg      = total ? (votes/total).toFixed(1) : 0;
+  var pct      = total ? ((launched/total)*100).toFixed(1) : 0;
+  document.getElementById("kpiTotal").textContent     = total.toLocaleString();
+  document.getElementById("kpiLaunched").textContent  = launched.toLocaleString();
+  document.getElementById("kpiLaunchSub").textContent = pct + "% " + tr("من الإجمالي","of total");
+  document.getElementById("kpiVotes").textContent     = votes.toLocaleString();
+  document.getElementById("kpiAvgSub").textContent    = tr("متوسط","Avg") + ": " + avg;
+  document.getElementById("kpiPending").textContent   = pending.toLocaleString();
+  document.getElementById("hdrBadge").textContent     = "📄 " + total;
 }
 
 function resetIdeas() {
-  F.i = {status:[],module:[],from:"2022-10-27",to:TODAY};
+  var today = getToday();
+  F.i = {status:[], module:[], from:DATE_MIN, to:today};
   MS_SEL["msIS"] = []; MS_SEL["msIM"] = [];
   document.getElementById("searchInput").value = "";
-  document.getElementById("iDateFrom").value   = "2022-10-27";
-  document.getElementById("iDateTo").value     = TODAY;
+  document.getElementById("iDateFrom").value   = DATE_MIN;
+  document.getElementById("iDateTo").value     = today;
   document.getElementById("sortSel").value     = "votes";
   ["msIS","msIM"].forEach(updateMsLabel);
   ideasPage = 1; renderIdeas();
 }
 
-// ── ANALYSIS TAB ──
+// ════════════════════════════════════════════════════
+// ANALYSIS TAB
+// ════════════════════════════════════════════════════
 function runAnalysis() {
   if (RAW.length === 0) return;
   destroyAll();
   F.a.from = document.getElementById("aDateFrom").value;
   F.a.to   = document.getElementById("aDateTo").value;
-  const data = getF("a");
-  document.getElementById("aCount").textContent = `${data.length} ${tr("فكرة","ideas")}`;
+  var data = getF("a");
+  document.getElementById("aCount").textContent = data.length + " " + tr("فكرة","ideas");
   buildStatusChart(data);
   buildModuleChart(data);
   buildTop20(data);
@@ -847,27 +888,28 @@ function runAnalysis() {
 }
 
 function resetAnalysis() {
-  F.a = {status:[],module:[],from:"2022-10-27",to:TODAY};
+  var today = getToday();
+  F.a = {status:[], module:[], from:DATE_MIN, to:today};
   MS_SEL["msAS"] = []; MS_SEL["msAM"] = [];
-  document.getElementById("aDateFrom").value = "2022-10-27";
-  document.getElementById("aDateTo").value   = TODAY;
+  document.getElementById("aDateFrom").value = DATE_MIN;
+  document.getElementById("aDateTo").value   = today;
   ["msAS","msAM"].forEach(updateMsLabel);
   runAnalysis();
 }
 
 function buildStatusChart(data) {
-  const map = {};
-  data.forEach(r => { if (r.status) map[r.status] = (map[r.status]||0) + 1; });
-  const entries = Object.entries(map).sort((a,b) => b[1]-a[1]);
-  const cc  = ccol();
-  const ctx = document.getElementById("cvStatus");
+  var map = {};
+  data.forEach(function(r) { if (r.status) map[r.status] = (map[r.status]||0) + 1; });
+  var entries = Object.entries(map).sort(function(a,b) { return b[1]-a[1]; });
+  var cc  = ccol();
+  var ctx = document.getElementById("cvStatus");
   chSt = new Chart(ctx, {
     type: "doughnut",
     data: {
-      labels: entries.map(([s]) => sLabel(s) || s),
+      labels: entries.map(function(e) { return sLabel(e[0]) || e[0]; }),
       datasets: [{
-        data: entries.map(([,v]) => v),
-        backgroundColor: entries.map(([s]) => S_CFG[s]?.c || "#19A2A5"),
+        data: entries.map(function(e) { return e[1]; }),
+        backgroundColor: entries.map(function(e) { return S_CFG[e[0]]?.c || "#19A2A5"; }),
         borderWidth: 2,
         borderColor: cc.bg,
         hoverOffset: 5
@@ -876,39 +918,46 @@ function buildStatusChart(data) {
     options: {
       plugins: {
         legend: {display:false},
-        tooltip: {callbacks: {label: c => `${c.label}: ${c.raw}`}}
+        tooltip: {callbacks: {label: function(c) { return c.label + ": " + c.raw; }}}
       },
       cutout: "55%",
       responsive: true,
-      onClick: (e, el) => { if (!el.length) return; const s = entries[el[0].index][0]; toggleAF("status", s, "msAS"); }
+      onClick: function(e, el) {
+        if (!el.length) return;
+        toggleAF("status", entries[el[0].index][0], "msAS");
+      }
     }
   });
 
-  const legEl = document.getElementById("statusLeg");
-  legEl.innerHTML = entries.map(([s,v]) => {
-    const cfg    = S_CFG[s] || {c:"#19A2A5"};
-    const active = !F.a.status.length || F.a.status.includes(s);
-    return `<div class="sleg-item" style="opacity:${active?1:.4}" onclick="toggleAF('status','${s.replace(/'/g,"\\'")}','msAS')">
-      <div class="sleg-dot" style="background:${cfg.c}"></div>
-      <span class="sleg-lbl">${sLabel(s)||s}</span>
-      <span class="sleg-val" style="color:${cfg.c}">${v}</span>
-    </div>`;
+  var legEl = document.getElementById("statusLeg");
+  legEl.innerHTML = entries.map(function(e) {
+    var s   = e[0], v = e[1];
+    var cfg = S_CFG[s] || {c:"#19A2A5"};
+    var active = !F.a.status.length || F.a.status.includes(s);
+    return '<div class="sleg-item" style="opacity:' + (active?1:.4) + '" onclick="toggleAF(\'status\',\'' + s.replace(/'/g,"\\'") + '\',\'msAS\')">' +
+      '<div class="sleg-dot" style="background:' + cfg.c + '"></div>' +
+      '<span class="sleg-lbl">' + (sLabel(s)||s) + '</span>' +
+      '<span class="sleg-val" style="color:' + cfg.c + '">' + v + '</span>' +
+    '</div>';
   }).join("");
 }
 
 function buildModuleChart(data) {
-  const map = {};
-  data.forEach(r => { if (r.module) map[r.module] = (map[r.module]||0) + 1; });
-  const entries = Object.entries(map).sort((a,b) => b[1]-a[1]);
-  const cc  = ccol();
-  const ctx = document.getElementById("cvModule");
+  var map = {};
+  data.forEach(function(r) { if (r.module) map[r.module] = (map[r.module]||0) + 1; });
+  var entries = Object.entries(map).sort(function(a,b) { return b[1]-a[1]; });
+  var cc  = ccol();
+  var ctx = document.getElementById("cvModule");
   chMod = new Chart(ctx, {
     type: "bar",
     data: {
-      labels: entries.map(([m]) => mName(m)),
+      labels: entries.map(function(e) { return mName(e[0]); }),
       datasets: [{
-        data: entries.map(([,v]) => v),
-        backgroundColor: entries.map(([m]) => { const c2 = mc(m); return (!F.a.module.length || F.a.module.includes(m)) ? c2 : c2+"55"; }),
+        data: entries.map(function(e) { return e[1]; }),
+        backgroundColor: entries.map(function(e) {
+          var c2 = mc(e[0]);
+          return (!F.a.module.length || F.a.module.includes(e[0])) ? c2 : c2 + "55";
+        }),
         borderRadius: 4,
         label: tr("الأفكار","Ideas")
       }]
@@ -919,85 +968,97 @@ function buildModuleChart(data) {
       maintainAspectRatio: false,
       plugins: {
         legend: {display:false},
-        tooltip: {callbacks: {label: c => `${c.dataset.label}: ${c.raw}`}}
+        tooltip: {callbacks: {label: function(c) { return c.dataset.label + ": " + c.raw; }}}
       },
       scales: {
         x: {grid:{color:cc.grid}, ticks:{color:cc.text}},
-        y: {grid:{color:"transparent"}, ticks:{color:cc.text,font:{size:11}}}
+        y: {grid:{color:"transparent"}, ticks:{color:cc.text, font:{size:11}}}
       },
-      onClick: (e, el) => { if (!el.length) return; const m = entries[el[0].index][0]; toggleAF("module", m, "msAM"); }
+      onClick: function(e, el) {
+        if (!el.length) return;
+        toggleAF("module", entries[el[0].index][0], "msAM");
+      }
     }
   });
 }
 
 function toggleAF(key, val, msId) {
-  const arr = F.a[key];
-  const idx = arr.indexOf(val);
+  var arr = F.a[key];
+  var idx = arr.indexOf(val);
   if (idx >= 0) arr.splice(idx, 1); else arr.push(val);
-  MS_SEL[msId] = [...arr];
+  MS_SEL[msId] = arr.slice();
   updateMsLabel(msId);
   runAnalysis();
 }
 
 function buildTop20(data) {
-  const top    = [...data].sort((a,b) => b.votes-a.votes).slice(0,20);
-  const maxV   = top[0]?.votes || 1;
-  const medals = ["🥇","🥈","🥉"];
-  document.getElementById("t20").innerHTML = `<thead><tr>
-    <th>#</th>
-    <th>${tr("الفكرة","Idea")}</th>
-    <th>${tr("الحالة","Status")}</th>
-    <th>${tr("الوحدة","Module")}</th>
-    <th>${tr("التصويتات","Votes")}</th>
-  </tr></thead><tbody>${top.map((r,i) => {
-    const sc  = S_CFG[r.status] || {ar:r.status,en:r.status,c:"#19A2A5",bg:"#cffafe"};
-    const mc2 = mc(r.module);
-    const bw  = Math.max(6, Math.round((r.votes/maxV)*70));
-    return `<tr data-href="${r.link||""}" onclick="openLink(this)">
-      <td style="text-align:center;font-weight:700;color:${i<3?["#F59E0B","#94a3b8","#cd7c2f"][i]:"var(--sub)"}">${i<3?medals[i]:"#"+(i+1)}</td>
-      <td style="max-width:280px">${esc(r.content.substring(0,80))}${r.content.length>80?"…":""}</td>
-      <td><span class="tag" style="background:${sc.bg};color:${sc.c}">${lang==="ar"?sc.ar:sc.en}</span></td>
-      <td><span class="tag" style="background:${mc2}22;color:${mc2}">${mName(r.module)}</span></td>
-      <td style="text-align:center"><span class="barmini" style="width:${bw}px;margin-left:6px;margin-right:6px"></span><b style="color:#F59E0B">${r.votes}</b></td>
-    </tr>`;
-  }).join("")}</tbody>`;
+  var top    = data.slice().sort(function(a,b) { return b.votes-a.votes; }).slice(0,20);
+  var maxV   = top[0] ? top[0].votes : 1;
+  var medals = ["🥇","🥈","🥉"];
+  document.getElementById("t20").innerHTML =
+    '<thead><tr>' +
+      '<th>#</th>' +
+      '<th>' + tr("الفكرة","Idea") + '</th>' +
+      '<th>' + tr("الحالة","Status") + '</th>' +
+      '<th>' + tr("الوحدة","Module") + '</th>' +
+      '<th>' + tr("التصويتات","Votes") + '</th>' +
+    '</tr></thead><tbody>' +
+    top.map(function(r, i) {
+      var sc  = S_CFG[r.status] || {ar:r.status, en:r.status, c:"#19A2A5", bg:"#cffafe"};
+      var mc2 = mc(r.module);
+      var bw  = Math.max(6, Math.round((r.votes/maxV)*70));
+      var rankColor = i < 3 ? ["#F59E0B","#94a3b8","#cd7c2f"][i] : "var(--sub)";
+      return '<tr data-href="' + (r.link||"") + '" onclick="openLink(this)">' +
+        '<td style="text-align:center;font-weight:700;color:' + rankColor + '">' + (i<3?medals[i]:"#"+(i+1)) + '</td>' +
+        '<td style="max-width:280px">' + esc(r.content.substring(0,80)) + (r.content.length>80?"…":"") + '</td>' +
+        '<td><span class="tag" style="background:' + sc.bg + ';color:' + sc.c + '">' + (lang==="ar"?sc.ar:sc.en) + '</span></td>' +
+        '<td><span class="tag" style="background:' + mc2 + '22;color:' + mc2 + '">' + mName(r.module) + '</span></td>' +
+        '<td style="text-align:center"><span class="barmini" style="width:' + bw + 'px;margin-left:6px;margin-right:6px"></span><b style="color:#F59E0B">' + r.votes + '</b></td>' +
+      '</tr>';
+    }).join("") +
+    '</tbody>';
 }
 
 function buildTop5(data) {
-  const map = {};
-  data.forEach(r => {
-    const k = r.authorIdx || r.author;
+  var map = {};
+  data.forEach(function(r) {
+    // Use authorIdx when available and non-empty; otherwise fall back to author name
+    var k = (r.authorIdx && r.authorIdx.trim()) ? r.authorIdx.trim() : ("name::" + r.author);
     if (!map[k]) map[k] = {name:r.author, ideas:[], votes:0};
     map[k].ideas.push(r);
     map[k].votes += r.votes;
   });
-  const top5 = Object.values(map).sort((a,b) => b.ideas.length - a.ideas.length).slice(0,5);
-  document.getElementById("top5").innerHTML = top5.map((c,i) => `
-    <div class="cust-card">
-      <div class="cust-hdr" onclick="togCust(${i})">
-        <div class="cavatar">${c.name.charAt(0)}</div>
-        <div style="flex:1;min-width:0">
-          <div class="cname">${esc(c.name)}</div>
-          <div class="cmeta">${c.ideas.length} ${tr("أفكار","ideas")} • ${c.votes} ${tr("تصويت","votes")}</div>
-        </div>
-        <div class="cbadges">
-          <span class="tag" style="background:rgba(25,162,165,.15);color:#19A2A5">${c.ideas.length} 💡</span>
-          <span class="tag" style="background:rgba(245,158,11,.15);color:#F59E0B">${c.votes} 🗳️</span>
-        </div>
-        <span class="carr" id="ca${i}">▼</span>
-      </div>
-      <div class="cust-body" id="cb${i}">
-        ${c.ideas.sort((a,b) => b.votes-a.votes).map(r => {
-          const sc = S_CFG[r.status] || {ar:r.status,en:r.status,c:"#19A2A5",bg:"#cffafe"};
-          return `<div class="cidea-row" data-href="${r.link||""}" onclick="event.stopPropagation();openLink(this)">
-            <b style="color:#F59E0B;min-width:26px;font-size:12px">${r.votes}</b>
-            <span style="flex:1;font-size:11px;line-height:1.5;word-break:break-word">${esc(r.content)}</span>
-            <span class="tag" style="background:${sc.bg};color:${sc.c}">${lang==="ar"?sc.ar:sc.en}</span>
-            ${r.link && r.link !== "#" ? `<span style="color:#19A2A5;font-size:10px">🔗</span>` : ""}
-          </div>`;
-        }).join("")}
-      </div>
-    </div>`).join("");
+  var top5 = Object.values(map)
+    .sort(function(a,b) { return b.ideas.length - a.ideas.length; })
+    .slice(0,5);
+
+  document.getElementById("top5").innerHTML = top5.map(function(c, i) {
+    return '<div class="cust-card">' +
+      '<div class="cust-hdr" onclick="togCust(' + i + ')">' +
+        '<div class="cavatar">' + esc(c.name.charAt(0)) + '</div>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div class="cname">' + esc(c.name) + '</div>' +
+          '<div class="cmeta">' + c.ideas.length + ' ' + tr("أفكار","ideas") + ' • ' + c.votes + ' ' + tr("تصويت","votes") + '</div>' +
+        '</div>' +
+        '<div class="cbadges">' +
+          '<span class="tag" style="background:rgba(25,162,165,.15);color:#19A2A5">' + c.ideas.length + ' 💡</span>' +
+          '<span class="tag" style="background:rgba(245,158,11,.15);color:#F59E0B">' + c.votes + ' 🗳️</span>' +
+        '</div>' +
+        '<span class="carr" id="ca' + i + '">▼</span>' +
+      '</div>' +
+      '<div class="cust-body" id="cb' + i + '">' +
+        c.ideas.slice().sort(function(a,b) { return b.votes-a.votes; }).map(function(r) {
+          var sc = S_CFG[r.status] || {ar:r.status, en:r.status, c:"#19A2A5", bg:"#cffafe"};
+          return '<div class="cidea-row" data-href="' + (r.link||"") + '" onclick="event.stopPropagation();openLink(this)">' +
+            '<b style="color:#F59E0B;min-width:26px;font-size:12px">' + r.votes + '</b>' +
+            '<span style="flex:1;font-size:11px;line-height:1.5;word-break:break-word">' + esc(r.content) + '</span>' +
+            '<span class="tag" style="background:' + sc.bg + ';color:' + sc.c + '">' + (lang==="ar"?sc.ar:sc.en) + '</span>' +
+            (r.link && r.link !== "#" ? '<span style="color:#19A2A5;font-size:10px">🔗</span>' : "") +
+          '</div>';
+        }).join("") +
+      '</div>' +
+    '</div>';
+  }).join("");
 }
 
 function togCust(i) {
@@ -1006,78 +1067,93 @@ function togCust(i) {
 }
 
 function buildLR(data) {
-  const map = {};
-  data.forEach(r => {
+  var map = {};
+  data.forEach(function(r) {
     if (r.module) {
       if (!map[r.module]) map[r.module] = {t:0, l:0};
       map[r.module].t++;
-      if (r.status.indexOf("تم الإطلاق") !== -1 || r.status.toLowerCase().indexOf("launched") !== -1) map[r.module].l++;
+      if (isLaunched(r.status)) map[r.module].l++;
     }
   });
-  const entries = Object.entries(map).sort((a,b) => (b[1].l/b[1].t) - (a[1].l/a[1].t));
-  document.getElementById("lrGrid").innerHTML = entries.map(([m,v]) => {
-    const pct = Math.round((v.l/v.t)*100);
-    const mc2 = mc(m);
-    return `<div class="lr-item">
-      <div class="lr-hdr"><span class="lr-name">${mName(m)}</span><span class="lr-pct" style="color:${mc2}">${pct}%</span></div>
-      <div class="lr-track"><div class="lr-fill" style="width:${pct}%;background:${mc2}"></div></div>
-      <div class="lr-sub">${v.l} ${tr("تم الإطلاق","Launched")} ${tr("من","of")} ${v.t}</div>
-    </div>`;
+  var entries = Object.entries(map).sort(function(a,b) {
+    return (b[1].l/b[1].t) - (a[1].l/a[1].t);
+  });
+  document.getElementById("lrGrid").innerHTML = entries.map(function(e) {
+    var m = e[0], v = e[1];
+    var pct = Math.round((v.l/v.t)*100);
+    var mc2 = mc(m);
+    return '<div class="lr-item">' +
+      '<div class="lr-hdr"><span class="lr-name">' + mName(m) + '</span><span class="lr-pct" style="color:' + mc2 + '">' + pct + '%</span></div>' +
+      '<div class="lr-track"><div class="lr-fill" style="width:' + pct + '%;background:' + mc2 + '"></div></div>' +
+      '<div class="lr-sub">' + v.l + ' ' + tr("تم الإطلاق","Launched") + ' ' + tr("من","of") + ' ' + v.t + '</div>' +
+    '</div>';
   }).join("");
 }
 
-// ── TRENDS TAB ──
+// ════════════════════════════════════════════════════
+// TRENDS TAB
+// ════════════════════════════════════════════════════
 function runTrends() {
   if (RAW.length === 0) return;
   destroyAll();
   F.t.from = document.getElementById("tDateFrom").value;
   F.t.to   = document.getElementById("tDateTo").value;
   F.t.iv   = document.getElementById("ivSel").value;
-  const iv    = F.t.iv;
-  const ivLbl = iv==="monthly" ? tr("شهري","Monthly") : iv==="quarterly" ? tr("ربع سنوي","Quarterly") : tr("سنوي","Yearly");
-  document.getElementById("tSub1").textContent = `${tr("التغيير بين الفترات","Change between periods")} • ${ivLbl}`;
-  const data = getF("t");
+  var iv    = F.t.iv;
+  var ivLbl = iv === "monthly"   ? tr("شهري","Monthly")
+            : iv === "quarterly" ? tr("ربع سنوي","Quarterly")
+            :                      tr("سنوي","Yearly");
+  document.getElementById("tSub1").textContent =
+    tr("التغيير بين الفترات","Change between periods") + " • " + ivLbl;
+  var data = getF("t");
   buildTrendChart(data);
   buildModLineChart(data);
   buildStLineChart(data);
 }
 
 function resetTrends() {
-  F.t = {status:[],module:[],from:"2022-10-27",to:TODAY,iv:"monthly"};
+  var today = getToday();
+  F.t = {status:[], module:[], from:DATE_MIN, to:today, iv:"monthly"};
   MS_SEL["msTS"] = []; MS_SEL["msTM"] = [];
-  document.getElementById("tDateFrom").value = "2022-10-27";
-  document.getElementById("tDateTo").value   = TODAY;
+  document.getElementById("tDateFrom").value = DATE_MIN;
+  document.getElementById("tDateTo").value   = today;
   document.getElementById("ivSel").value     = "monthly";
   ["msTS","msTM"].forEach(updateMsLabel);
   runTrends();
 }
 
 function buildTrendChart(data) {
-  const iv  = F.t.iv;
-  const map = {};
-  data.forEach(r => { if (r.date) { const k = getKey(r.date,iv); map[k] = (map[k]||0) + 1; } });
-  const keys   = Object.keys(map).sort();
-  const labels = keys.map(k => fmtKey(k,iv));
-  const counts = keys.map(k => map[k]);
-  const deltas = counts.map((c,i) => i===0 ? null : c - counts[i-1]);
-  const cc  = ccol();
-  const ctx = document.getElementById("cvTrend");
+  var iv  = F.t.iv;
+  var map = {};
+  data.forEach(function(r) {
+    if (!r.date) return;
+    var k = getKey(r.date, iv);
+    if (k) map[k] = (map[k]||0) + 1;
+  });
+  var keys   = Object.keys(map).sort();
+  var labels = keys.map(function(k) { return fmtKey(k, iv); });
+  var counts = keys.map(function(k) { return map[k]; });
+  var deltas = counts.map(function(c, i) { return i === 0 ? null : c - counts[i-1]; });
+  var cc  = ccol();
+  var ctx = document.getElementById("cvTrend");
 
-  const deltaPlugin = {
+  var deltaPlugin = {
     id: "deltaLabels",
-    afterDatasetsDraw(chart) {
-      const {ctx:c2, scales:{x,y}} = chart;
+    afterDatasetsDraw: function(chart) {
+      var c2 = chart.ctx;
+      var x  = chart.scales.x;
+      var y  = chart.scales.y;
       if (!x || !y) return;
-      counts.forEach((v,i) => {
-        const d = deltas[i];
+      counts.forEach(function(v, i) {
+        var d = deltas[i];
         if (d === null) return;
         try {
-          const xp = x.getPixelForValue(i);
-          const yp = y.getPixelForValue(v);
+          var xp = x.getPixelForValue(i);
+          var yp = y.getPixelForValue(v);
           c2.save();
-          c2.font = "bold 9px sans-serif";
-          c2.fillStyle  = d >= 0 ? "#1BBFA0" : "#EF4444";
-          c2.textAlign  = "center";
+          c2.font      = "bold 9px sans-serif";
+          c2.fillStyle = d >= 0 ? "#1BBFA0" : "#EF4444";
+          c2.textAlign = "center";
           c2.fillText(d >= 0 ? "+" + d : String(d), xp, yp - 6);
           c2.restore();
         } catch(e) {}
@@ -1088,11 +1164,13 @@ function buildTrendChart(data) {
   chTrend = new Chart(ctx, {
     type: "bar",
     data: {
-      labels,
+      labels: labels,
       datasets: [{
         label: tr("الأفكار","Ideas"),
         data:  counts,
-        backgroundColor: counts.map((_,i) => deltas[i]===null ? "#19A2A5" : deltas[i]>=0 ? "#1BBFA0" : "#EF4444"),
+        backgroundColor: counts.map(function(_, i) {
+          return deltas[i] === null ? "#19A2A5" : deltas[i] >= 0 ? "#1BBFA0" : "#EF4444";
+        }),
         borderRadius: 3
       }]
     },
@@ -1102,12 +1180,15 @@ function buildTrendChart(data) {
       plugins: {
         legend: {display:false},
         tooltip: {callbacks: {
-          label: c => { const d = deltas[c.dataIndex]; return `${c.raw}${d===null?"":(d>=0?` (+${d})`:`(${d})`)}` ; },
-          title: tt => [tt[0].label]
+          label: function(c) {
+            var d = deltas[c.dataIndex];
+            return c.raw + (d === null ? "" : (d >= 0 ? " (+" + d + ")" : " (" + d + ")"));
+          },
+          title: function(tt) { return [tt[0].label]; }
         }}
       },
       scales: {
-        x: {grid:{color:"transparent"}, ticks:{color:cc.text,font:{size:9},maxRotation:45}},
+        x: {grid:{color:"transparent"}, ticks:{color:cc.text, font:{size:9}, maxRotation:45}},
         y: {grid:{color:cc.grid},       ticks:{color:cc.text}}
       }
     },
@@ -1116,42 +1197,45 @@ function buildTrendChart(data) {
 }
 
 function buildModLineChart(data) {
-  const iv   = F.t.iv;
-  const allK = new Set();
-  const mm   = {};
-  data.forEach(r => {
+  var iv   = F.t.iv;
+  var allK = new Set();
+  var mm   = {};
+  data.forEach(function(r) {
     if (!r.date) return;
-    const k = getKey(r.date, iv);
+    var k = getKey(r.date, iv);
+    if (!k) return;
     allK.add(k);
     if (!mm[r.module]) mm[r.module] = {};
     mm[r.module][k] = (mm[r.module][k]||0) + 1;
   });
-  const keys   = [...allK].sort();
-  const labels = keys.map(k => fmtKey(k,iv));
-  const mods   = Object.keys(mm);
-  const cc  = ccol();
-  const ctx = document.getElementById("cvModLine");
+  var keys   = [...allK].sort();
+  var labels = keys.map(function(k) { return fmtKey(k, iv); });
+  var mods   = Object.keys(mm);
+  var cc     = ccol();
+  var ctx    = document.getElementById("cvModLine");
 
   chML = new Chart(ctx, {
     type: "line",
     data: {
-      labels,
-      datasets: mods.map(m => ({
-        label: mName(m),
-        data:  keys.map(k => mm[m][k] || 0),
-        borderColor: mc(m),
-        backgroundColor: "transparent",
-        borderWidth: 2,
-        pointRadius: 2,
-        tension: .3
-      }))
+      labels: labels,
+      datasets: mods.map(function(m) {
+        return {
+          label: mName(m),
+          data:  keys.map(function(k) { return mm[m][k] || 0; }),
+          borderColor:     mc(m),
+          backgroundColor: "transparent",
+          borderWidth: 2,
+          pointRadius: 2,
+          tension: .3
+        };
+      })
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {legend:{labels:{color:cc.text,font:{size:10}},position:"bottom"}},
+      plugins: {legend:{labels:{color:cc.text, font:{size:10}}, position:"bottom"}},
       scales: {
-        x: {grid:{color:"transparent"}, ticks:{color:cc.text,font:{size:9},maxRotation:45}},
+        x: {grid:{color:"transparent"}, ticks:{color:cc.text, font:{size:9}, maxRotation:45}},
         y: {grid:{color:cc.grid},       ticks:{color:cc.text}}
       }
     }
@@ -1159,42 +1243,45 @@ function buildModLineChart(data) {
 }
 
 function buildStLineChart(data) {
-  const iv   = F.t.iv;
-  const allK = new Set();
-  const sm   = {};
-  data.forEach(r => {
+  var iv   = F.t.iv;
+  var allK = new Set();
+  var sm   = {};
+  data.forEach(function(r) {
     if (!r.date || !r.status) return;
-    const k = getKey(r.date, iv);
+    var k = getKey(r.date, iv);
+    if (!k) return;
     allK.add(k);
     if (!sm[r.status]) sm[r.status] = {};
     sm[r.status][k] = (sm[r.status][k]||0) + 1;
   });
-  const keys   = [...allK].sort();
-  const labels = keys.map(k => fmtKey(k,iv));
-  const sts    = Object.keys(sm);
-  const cc  = ccol();
-  const ctx = document.getElementById("cvStLine");
+  var keys   = [...allK].sort();
+  var labels = keys.map(function(k) { return fmtKey(k, iv); });
+  var sts    = Object.keys(sm);
+  var cc     = ccol();
+  var ctx    = document.getElementById("cvStLine");
 
   chSL = new Chart(ctx, {
     type: "line",
     data: {
-      labels,
-      datasets: sts.map(s => ({
-        label: sLabel(s) || s,
-        data:  keys.map(k => sm[s][k] || 0),
-        borderColor: S_CFG[s]?.c || "#19A2A5",
-        backgroundColor: "transparent",
-        borderWidth: 2,
-        pointRadius: 2,
-        tension: .3
-      }))
+      labels: labels,
+      datasets: sts.map(function(s) {
+        return {
+          label: sLabel(s) || s,
+          data:  keys.map(function(k) { return sm[s][k] || 0; }),
+          borderColor:     S_CFG[s]?.c || "#19A2A5",
+          backgroundColor: "transparent",
+          borderWidth: 2,
+          pointRadius: 2,
+          tension: .3
+        };
+      })
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {legend:{labels:{color:cc.text,font:{size:10}},position:"bottom"}},
+      plugins: {legend:{labels:{color:cc.text, font:{size:10}}, position:"bottom"}},
       scales: {
-        x: {grid:{color:"transparent"}, ticks:{color:cc.text,font:{size:9},maxRotation:45}},
+        x: {grid:{color:"transparent"}, ticks:{color:cc.text, font:{size:9}, maxRotation:45}},
         y: {grid:{color:cc.grid},       ticks:{color:cc.text}}
       }
     }
@@ -1203,21 +1290,26 @@ function buildStLineChart(data) {
 
 // ── LINK HELPER ──
 function openLink(el) {
-  const url = el.getAttribute("data-href");
+  var url = el.getAttribute("data-href");
   if (url && url !== "#") window.open(url, "_blank", "noopener");
 }
 
 // ════════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════════
-// Set all "To" date inputs to today so new records are never cut off
-["iDateTo","aDateTo","tDateTo"].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.value = TODAY;
-});
-
-applyLang();
-initDashboardLiveSync();
+(function init() {
+  var today = getToday();
+  ["iDateTo","aDateTo","tDateTo"].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = today;
+  });
+  ["iDateFrom","aDateFrom","tDateFrom"].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = DATE_MIN;
+  });
+  applyLang();
+  initDashboardLiveSync();
+})();
 </script>
 </body>
 </html>
