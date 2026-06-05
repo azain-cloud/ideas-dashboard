@@ -535,7 +535,7 @@ function initDashboardLiveSync() {
   setSyncStatus("fetching");
   var timeoutId = setTimeout(function() { setSyncStatus("timeout"); }, 12000);
 
-  fetch(APPS_SCRIPT_URL, { method:"GET", redirect:"follow" })
+  var token = sessionStorage.getItem("gsi_credential") || ""; fetch(APPS_SCRIPT_URL + "?token=" + encodeURIComponent(token), { method:"GET", redirect:"follow" })
     .then(function(res) { if (!res.ok) throw new Error("HTTP " + res.status); return res.json(); })
     .then(function(json) {
       clearTimeout(timeoutId);
