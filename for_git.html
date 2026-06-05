@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Rewaa · Ideas Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --t1:#1A6B6E;--t2:#19A2A5;--t3:#1BBFA0;--t4:#17D4B8;
+  --d1:#0D2B30;--d2:#102C36;--d3:#1E4A52;
+  --green:#1BBE6E;--orange:#F59E0B;--red:#EF4444;
+  --blue:#2563EB;--purple:#8B5CF6;--pink:#EC4899;
+  --bg:var(--d1);--card:var(--d2);--border:var(--d3);
+  --text:#e2e8f0;--sub:#94a3b8;--hbg:#071a1e;
+  --inp:var(--d3);--inpb:var(--t1);
+}
+body.light{
+  --bg:#f0f9fa;--card:#ffffff;--border:#d1fae5;
+  --text:#0D2B30;--sub:#64748b;--hbg:#0D2B30;
+  --inp:#ffffff;--inpb:#d1fae5;
+}
+body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;transition:background .2s,color .2s}
+
+/* ── HEADER ── */
+#hdr{background:var(--hbg);border-bottom:2px solid var(--t2);position:sticky;top:0;z-index:100;padding:0 22px}
+.hdr-row{display:flex;align-items:center;justify-content:space-between;height:54px;gap:10px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-divider{width:1px;height:26px;background:var(--t2);opacity:.5}
+.brand-title{font-size:14px;font-weight:700;color:#fff;white-space:nowrap}
+.brand-sub{font-size:10px;color:var(--t4);opacity:.8}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.lang-toggle{display:flex;background:#071a1e;border-radius:20px;border:1px solid var(--t2);overflow:hidden}
+.lb{padding:4px 10px;border:none;border-radius:20px;cursor:pointer;font-size:11px;font-weight:700;background:transparent;color:var(--t4);transition:all .2s}
+.lb.active{background:var(--t2);color:#fff}
+.theme-btn{background:#071a1e;border:1px solid var(--t2);border-radius:20px;padding:4px 10px;cursor:pointer;font-size:13px;color:var(--t4)}
+.hdr-badge{background:var(--t2);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;color:#fff;white-space:nowrap}
+
+/* ── SYNC STATUS (minimal inline) ── */
+#syncStatus{font-size:11px;font-weight:400;color:var(--t4);white-space:nowrap;display:flex;align-items:center;gap:4px;transition:color .3s;margin-inline-start:auto;padding:0 6px}
+#syncStatus label{cursor:pointer;text-decoration:underline;color:inherit;font-weight:400}
+
+.tabs{display:flex;gap:2px;align-items:center;justify-content:space-between}
+.tab-btn{background:transparent;color:var(--sub);border:none;border-bottom:2px solid transparent;padding:7px 18px;cursor:pointer;font-size:13px;font-weight:500;transition:all .2s;white-space:nowrap}
+.tab-btn.active{color:var(--t2);font-weight:700;border-bottom-color:var(--t2)}
+
+/* ── LAYOUT ── */
+#content{padding:18px 22px}
+.panel{display:none}.panel.active{display:block}
+
+/* ── KPI GRID ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border-radius:12px;padding:16px 18px;border:1px solid var(--border);border-top:3px solid var(--t2);transition:background .2s}
+.kpi-icon{font-size:20px;margin-bottom:5px}
+.kpi-val{font-size:26px;font-weight:800;line-height:1}
+.kpi-lbl{font-size:12px;font-weight:600;margin-top:3px}
+.kpi-sub{font-size:10px;color:var(--sub);margin-top:2px}
+
+/* ── FILTER BAR ── */
+.fbar{background:var(--hbg);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;border:1px solid var(--border);overflow:visible;position:relative}
+body.light .fbar{background:#fff}
+.flbl{font-size:11px;color:var(--sub);white-space:nowrap}
+.finp,.fsel{background:var(--inp);border:1px solid var(--inpb);border-radius:7px;padding:5px 9px;font-size:11px;color:var(--text);outline:none;font-family:inherit}
+.fsearch{flex:1 1 160px;padding:6px 10px}
+.freset{background:var(--t2);color:#fff;border:none;border-radius:7px;padding:5px 12px;cursor:pointer;font-size:11px;font-weight:700}
+.fcnt{color:var(--sub);font-size:11px;background:var(--card);padding:3px 9px;border-radius:16px;border:1px solid var(--border);white-space:nowrap}
+
+/* ── MULTI-SELECT ── */
+.ms{position:relative;min-width:110px}
+.ms-trg{background:var(--inp);border:1.5px solid var(--inpb);border-radius:7px;padding:5px 9px;cursor:pointer;font-size:11px;color:var(--text);display:flex;align-items:center;justify-content:space-between;gap:5px;white-space:nowrap;user-select:none}
+.ms-arr{font-size:9px;opacity:.6;flex-shrink:0}
+.ms-drop{position:absolute;top:calc(100% + 3px);right:0;left:auto;background:#102C36;border:1.5px solid var(--inpb);border-radius:8px;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,.35);max-height:220px;overflow-y:auto;min-width:200px;display:none}
+body.light .ms-drop{background:#ffffff;border-color:#d1fae5;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.ms-drop.open{display:block}
+.ms-all{padding:6px 10px;cursor:pointer;font-size:11px;border-bottom:1px solid #1A6B6E;color:#94a3b8}
+body.light .ms-all{border-bottom-color:#d1fae5;color:#64748b}
+.ms-all.sel{color:var(--t2);font-weight:700}
+.ms-opt{padding:6px 10px;cursor:pointer;font-size:11px;display:flex;align-items:center;gap:6px;transition:background .12s;color:#e2e8f0}
+body.light .ms-opt{color:#1e293b}
+.ms-opt:hover{background:rgba(25,162,165,.12)}
+.ms-opt.sel{color:var(--t2);font-weight:700}
+.ms-chk{width:13px;height:13px;border:2px solid var(--sub);border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px}
+.ms-opt.sel .ms-chk{background:var(--t2);border-color:var(--t2);color:#fff}
+
+/* ── IDEAS LIST ── */
+.idea-row{background:var(--card);border-radius:11px;padding:11px 14px;border:1px solid var(--border);display:flex;gap:10px;align-items:flex-start;cursor:pointer;transition:box-shadow .18s;margin-bottom:7px}
+.idea-row:hover{box-shadow:0 3px 18px rgba(25,162,165,.25)}
+.ivote{min-width:48px;text-align:center;background:var(--hbg);border-radius:9px;padding:7px 3px;border:1px solid var(--border);flex-shrink:0}
+body.light .ivote{background:#f8fafc}
+.ivnum{font-size:17px;font-weight:800}
+.ivlbl{font-size:8px;color:var(--sub)}
+.ibody{flex:1;min-width:0}
+.itxt{font-size:12px;line-height:1.5;margin-bottom:7px;word-break:break-word}
+.itags{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.tag{font-size:10px;padding:2px 8px;border-radius:16px;font-weight:600;white-space:nowrap}
+.tmeta{font-size:10px;color:var(--sub)}
+
+/* ── PAGINATION ── */
+.pag{display:flex;justify-content:center;gap:5px;margin-top:18px;flex-wrap:wrap}
+.pb{padding:4px 9px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:var(--card);color:var(--text);font-size:11px;transition:all .18s}
+.pb:hover{border-color:var(--t2);color:var(--t2)}
+.pb.active{background:var(--t2);color:#fff;border-color:var(--t2);font-weight:700}
+
+/* ── SECTION CARD ── */
+.sc{background:var(--card);border-radius:12px;padding:16px 18px;border:1px solid var(--border);margin-bottom:14px;transition:background .2s}
+.sc-title{font-weight:700;font-size:14px;margin-bottom:2px}
+.sc-sub{font-size:10px;color:var(--sub);margin-bottom:10px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+
+/* ── STATUS DONUT ── */
+.pie-wrap{display:flex;gap:20px;align-items:center}
+.pie-cv{flex:0 0 260px;height:260px}
+.sleg{display:flex;flex-direction:column;gap:4px;flex:1;padding-top:8px}
+.sleg-item{display:flex;align-items:center;gap:6px;cursor:pointer;padding:2px 5px;border-radius:5px;transition:opacity .15s,background .15s}
+.sleg-item:hover{background:rgba(25,162,165,.1)}
+.sleg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.sleg-lbl{font-size:10px;flex:1}
+.sleg-val{font-size:11px;font-weight:700}
+
+/* ── TOP20 TABLE ── */
+.t20{width:100%;border-collapse:collapse;font-size:11px}
+.t20 th{padding:8px 10px;text-align:right;font-weight:600;color:var(--sub);border-bottom:1px solid var(--border);background:var(--hbg)}
+body.light .t20 th{background:#f0fafa}
+body.ltr .t20 th{text-align:left}
+.t20 td{padding:7px 10px;border-bottom:1px solid rgba(26,107,110,.15)}
+.t20 tr{cursor:pointer;transition:background .12s}
+.t20 tr:hover td{background:rgba(25,162,165,.07)}
+.barmini{height:5px;background:var(--t2);border-radius:3px;display:inline-block;vertical-align:middle}
+
+/* ── TOP5 CUSTOMERS ── */
+.cust-card{border:1px solid var(--border);border-radius:9px;overflow:hidden;margin-bottom:7px}
+.cust-hdr{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;background:var(--d1);transition:background .15s}
+body.light .cust-hdr{background:#f8fffe}
+.cust-hdr:hover{background:rgba(25,162,165,.08)}
+.cavatar{width:34px;height:34px;border-radius:50%;background:var(--t2);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0}
+.cname{font-weight:700;font-size:12px}
+.cmeta{font-size:10px;color:var(--sub)}
+.cbadges{display:flex;gap:6px;margin-right:auto}
+.carr{color:var(--sub);font-size:11px;transition:transform .25s;flex-shrink:0}
+.carr.open{transform:rotate(180deg)}
+.cust-body{display:none;padding:7px 10px;flex-direction:column;gap:5px}
+.cust-body.open{display:flex}
+.cidea-row{display:flex;align-items:center;gap:7px;padding:6px 9px;border-radius:7px;cursor:pointer;border:1px solid rgba(26,107,110,.18);background:var(--card);transition:background .12s}
+.cidea-row:hover{background:var(--hbg)}
+body.light .cidea-row:hover{background:#f0fafa}
+
+/* ── LAUNCH RATE ── */
+.lr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:9px}
+.lr-item{padding:9px 12px;border:1px solid var(--border);border-radius:9px}
+.lr-hdr{display:flex;justify-content:space-between;margin-bottom:5px}
+.lr-name{font-size:11px;font-weight:600}
+.lr-pct{font-size:12px;font-weight:700}
+.lr-track{height:5px;background:var(--d3);border-radius:3px}
+body.light .lr-track{background:#e2e8f0}
+.lr-fill{height:100%;border-radius:3px;transition:width .4s}
+.lr-sub{font-size:10px;color:var(--sub);margin-top:3px}
+
+/* ── CHART SCROLL ── */
+.cscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* ── MISC ── */
+body.ltr{direction:ltr}
+body.ltr .ms-drop{right:auto;left:0}
+</style>
+</head>
+<body class="light ltr">
+
+<div id="hdr">
+  <div class="hdr-row">
+    <div class="brand">
+      <svg id="brandLogo" xmlns="http://www.w3.org/2000/svg" width="76" height="26" viewBox="0 0 124 42" fill="none">
+        <path d="M33.12 0.26h-2.8c-.43 0-.77.35-.77.78v25.39c0 .3.24.54.54.54h3.27c.3 0 .54-.24.54-.54V1.04c0-.43-.35-.78-.78-.78z" fill="#19A2A5"/>
+        <path d="M84.81 34.95l-3.56 1.45-4.17 1.69c-.32.13-.54.44-.56.79l-.11 1.53c-.02.42.4.71.78.55l5.07-2.06 2.66-1.08c.33-.13.54-.44.56-.79l.11-1.53c.02-.42-.4-.71-.78-.55z" fill="#19A2A5"/>
+        <path d="M84.92 6.23h-2.99c-.37 0-.67.3-.67.67v18.5c0 4.1-.7 4.92-6.27 4.92h-5.08c-.35 0-.52 0-.67-.01h-1.23c-.18 0-.34 0-.49-.01h-1.39c-.35 0-.67.2-.82.52l-1.51 3.27c-.17.38.1.81.52.81h8.57c7.09 0 10.31-2.02 10.31-9.39V6.9c0-.37-.3-.67-.67-.67z" fill="#19A2A5"/>
+        <path d="M62.65 6.23H47.58c-6.91 0-9.1 2.85-9.34 9.1v2.54c.24 6.25 2.43 9.1 9.34 9.1h7.36c-.47 0-.19-.2.15-.52l1.51-3.27c.17-.38-.1-.81-.52-.81h-8.49c-3.65 0-4.69-.56-4.87-4.66v-2.76c.18-4.1 1.22-4.66 4.87-4.66h11.23v15.12c0 4.1-.7 4.91-6.27 4.91H39.64c-.35 0-.67.2-.82.52l-1.51 3.27c-.17.38.1.81.52.81h24.14V6.9c0-.37-.3-.67-.67-.67z" fill="#19A2A5"/>
+        <path d="M24.64 22.38h-12.72c-3.65 0-4.69-.56-4.87-4.66v-2.76c.18-4.1 1.22-4.66 4.87-4.66h13.51v-3.6c0-.43-.35-.78-.78-.78H11.8C4.89 6.22 2.7 9.07 2.46 15.32v2.55c.07 1.77.29 3.26.74 4.49H.57c-.36 0-.69 4.61 0 4.61h22.26c.35 0 .67-.2.82-.52l1.51-3.27c.17-.38-.1-.81-.52-.81z" fill="#19A2A5"/>
+        <path d="M120.89 3.12C118.92 1.15 116.33.04 113.55 0h-11.08c-3.61.02-6.54 2.98-6.54 6.61 0 .61.08 1.19.24 1.75l7.96 27.82c.77 2.8 3.32 4.86 6.35 4.86 1 0 1.95-.23 2.8-.62.69-.33 1.32-.77 1.85-1.3.8-.8 1.39-1.8 1.7-2.92l6.98-23.85 1.06-3.54.03-.12c.28-.97.43-1.98.43-3.02 0-2.85-1.1-5.52-3.1-7.55zm-1.19 9.38l-2.76 7.68-2.79 8.27-2.02 5.99c-.25.67-.89 1.15-1.64 1.15-.45 0-.86-.17-1.17-.46-.23-.21-.41-.48-.5-.78l-8.02-27.96c-.02-.05-.04-.11-.04-.17-.03-.14-.05-.27-.05-.41 0-.97.78-1.75 1.75-1.75l10.43-.86c3.63 0 6.58 2.96 6.58 6.6 0 .64-.09 1.26-.26 1.85z" fill="#19A2A5"/>
+      </svg>
+      <div class="brand-divider"></div>
+      <div>
+        <div class="brand-title" id="brandTitle">Ideas Dashboard</div>
+        <div class="brand-sub" id="brandSub">Latest Update</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="lang-toggle">
+        <button class="lb" id="lbAr" onclick="setLang('ar')">AR</button>
+        <button class="lb active" id="lbEn" onclick="setLang('en')">EN</button>
+      </div>
+      <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+      <div class="hdr-badge" id="hdrBadge">📄 ...</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" id="tabIdeas" onclick="switchTab('ideas')">💡 الأفكار</button>
+    <button class="tab-btn" id="tabAnalysis" onclick="switchTab('analysis')">📊 التحليل</button>
+    <button class="tab-btn" id="tabTrends" onclick="switchTab('trends')">📈 الاتجاهات</button>
+    <span id="syncStatus">🔄 Fetching data...</span>
+  </div>
+</div>
+
+<div id="content">
+
+<div id="panelIdeas" class="panel active">
+  <div class="kpi-grid">
+    <div class="kpi" style="border-top-color:var(--t2)">
+      <div class="kpi-icon">💡</div>
+      <div class="kpi-val" style="color:var(--t2)" id="kpiTotal">...</div>
+      <div class="kpi-lbl" id="kpiTotalLbl">إجمالي الأفكار</div>
+    </div>
+    <div class="kpi" style="border-top-color:var(--green)">
+      <div class="kpi-icon">🚀</div>
+      <div class="kpi-val" style="color:var(--green)" id="kpiLaunched">...</div>
+      <div class="kpi-lbl" id="kpiLaunchedLbl">الأفكار المُطلقة</div>
+      <div class="kpi-sub" id="kpiLaunchSub">...</div>
+    </div>
+    <div class="kpi" style="border-top-color:var(--orange)">
+      <div class="kpi-icon">🗳️</div>
+      <div class="kpi-val" style="color:var(--orange)" id="kpiVotes">...</div>
+      <div class="kpi-lbl" id="kpiVotesLbl">إجمالي التصويتات</div>
+      <div class="kpi-sub" id="kpiAvgSub">...</div>
+    </div>
+    <div class="kpi" style="border-top-color:var(--blue)">
+      <div class="kpi-icon">📋</div>
+      <div class="kpi-val" style="color:var(--blue)" id="kpiPending">...</div>
+      <div class="kpi-lbl" id="kpiPendingLbl">أفكار قيد المتابعة</div>
+      <div class="kpi-sub" id="kpiPendingSub">...</div>
+    </div>
+  </div>
+
+  <div class="fbar">
+    <input type="text" class="finp fsearch" id="searchInput" oninput="ideasPage=1;renderIdeas()">
+    <div class="ms" id="msIS"><div class="ms-trg" onclick="msToggle('msIS')"><span id="msISLbl">الحالة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msISDrop"></div></div>
+    <div class="ms" id="msIM"><div class="ms-trg" onclick="msToggle('msIM')"><span id="msIMLbl">الوحدة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msIMDrop"></div></div>
+    <select class="fsel" id="sortSel" onchange="ideasPage=1;renderIdeas()">
+      <option value="votes" id="sortOptV">الأعلى تصويتاً</option>
+      <option value="date" id="sortOptD">الأحدث</option>
+    </select>
+    <span class="flbl" id="lblFrom">من:</span>
+    <input type="date" class="finp" id="iDateFrom" value="2022-10-27" onchange="ideasPage=1;renderIdeas()">
+    <span class="flbl" id="lblTo">إلى:</span>
+    <input type="date" class="finp" id="iDateTo" value="2026-05-25" onchange="ideasPage=1;renderIdeas()">
+    <button class="freset" id="iReset" onclick="resetIdeas()">إعادة ضبط</button>
+    <span class="fcnt" id="iCount">...</span>
+  </div>
+  <div id="ideasList"></div>
+  <div class="pag" id="pag"></div>
+</div>
+
+<div id="panelAnalysis" class="panel">
+  <div class="fbar">
+    <div class="ms" id="msAS"><div class="ms-trg" onclick="msToggle('msAS')"><span id="msASLbl">الحالة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msASDrop"></div></div>
+    <div class="ms" id="msAM"><div class="ms-trg" onclick="msToggle('msAM')"><span id="msAMLbl">الوحدة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msAMDrop"></div></div>
+    <span class="flbl" id="aLblFrom">من:</span>
+    <input type="date" class="finp" id="aDateFrom" value="2022-10-27" onchange="runAnalysis()">
+    <span class="flbl" id="aLblTo">إلى:</span>
+    <input type="date" class="finp" id="aDateTo" value="2026-05-25" onchange="runAnalysis()">
+    <button class="freset" id="aReset" onclick="resetAnalysis()">إعادة ضبط</button>
+    <span class="fcnt" id="aCount">...</span>
+  </div>
+  <div class="two-col">
+    <div class="sc">
+      <div class="sc-title" id="aTitleStatus">الأفكار حسب الحالة</div>
+      <div class="sc-sub" id="aSubStatus">اضغط على الحالة للتصفية 👆</div>
+      <div class="pie-wrap">
+        <div class="pie-cv"><canvas id="cvStatus"></canvas></div>
+        <div class="sleg" id="statusLeg"></div>
+      </div>
+    </div>
+    <div class="sc">
+      <div class="sc-title" id="aTitleModule">الأفكار حسب الوحدة</div>
+      <div class="sc-sub" id="aSubModule">اضغط على الوحدة للتصفية 👆</div>
+      <div style="position:relative;width:100%;height:320px"><canvas id="cvModule"></canvas></div>
+    </div>
+  </div>
+  <div class="sc">
+    <div class="sc-title" id="aTitle20">🏆 أعلى 20 فكرة بالتصويتات</div>
+    <div class="sc-sub" id="aSub20">اضغط على الفكرة للذهاب إليها في Frill 👆</div>
+    <div style="overflow-x:auto"><table class="t20" id="t20"></table></div>
+  </div>
+  <div class="sc">
+    <div class="sc-title" id="aTitle5">👥 أبرز 5 عملاء بالأفكار</div>
+    <div id="top5"></div>
+  </div>
+  <div class="sc">
+    <div class="sc-title" id="aTitleLR">📦 نسبة الإطلاق حسب الوحدة</div>
+    <div class="lr-grid" id="lrGrid"></div>
+  </div>
+</div>
+
+<div id="panelTrends" class="panel">
+  <div class="fbar">
+    <div class="ms" id="msTS"><div class="ms-trg" onclick="msToggle('msTS')"><span id="msTSLbl">الحالة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msTSDrop"></div></div>
+    <div class="ms" id="msTM"><div class="ms-trg" onclick="msToggle('msTM')"><span id="msTMLbl">الوحدة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msTMDrop"></div></div>
+    <span class="flbl" id="tLblFrom">من:</span>
+    <input type="date" class="finp" id="tDateFrom" value="2022-10-27" onchange="runTrends()">
+    <span class="flbl" id="tLblTo">إلى:</span>
+    <input type="date" class="finp" id="tDateTo" value="2026-05-25" onchange="runTrends()">
+    <span class="flbl" id="tLblIv">الفترة:</span>
+    <select class="fsel" id="ivSel" onchange="runTrends()">
+      <option value="monthly" id="ivOptM">شهري</option>
+      <option value="quarterly" id="ivOptQ">ربع سنوي</option>
+      <option value="yearly" id="ivOptY">سنوي</option>
+    </select>
+    <button class="freset" id="tReset" onclick="resetTrends()">إعادة ضبط</button>
+  </div>
+  <div class="sc">
+    <div class="sc-title" id="tTitle1">🔄 اتجاه الأفكار عبر الزمن</div>
+    <div class="sc-sub" id="tSub1">التغيير بين الفترات • شهري</div>
+    <div style="position:relative;width:100%;height:220px"><canvas id="cvTrend"></canvas></div>
+  </div>
+  <div class="sc">
+    <div class="sc-title" id="tTitle2">📊 اتجاه الأفكار حسب الوحدة</div>
+    <div style="position:relative;width:100%;height:260px"><canvas id="cvModLine"></canvas></div>
+  </div>
+  <div class="sc">
+    <div class="sc-title" id="tTitle3">📊 اتجاه الأفكار حسب الحالة</div>
+    <div style="position:relative;width:100%;height:260px"><canvas id="cvStLine"></canvas></div>
+  </div>
+</div>
+
+</div><script>
+// ════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════
+let RAW = [];
+
+const S_CFG = {
+  "🚀تم الإطلاق":              {ar:"تم الإطلاق",    en:"Launched",       c:"#1BBE6E",bg:"#dcfce7"},
+  "📰 تم إضافة الفكرة":       {ar:"تم إضافة الفكرة", en:"Idea Added",     c:"#19A2A5",bg:"#cffafe"},
+  "🔍 قيد المراجعة":           {ar:"قيد المراجعة",    en:"Under Review",   c:"#F59E0B",bg:"#fef3c7"},
+  "⚒️ قيد التطوير":           {ar:"قيد التطوير",     en:"In Development", c:"#8B5CF6",bg:"#ede9fe"},
+  "✨ تم إطلاق نسخة تجريبية":  {ar:"نسخة تجريبية",   en:"Beta",            c:"#2563EB",bg:"#dbeafe"},
+  "🤝 التجهيز للتطوير":        {ar:"التجهيز للتطوير", en:"Ready for Dev",  c:"#EC4899",bg:"#fce7f3"},
+};
+const M_CLR = {
+  "المبيعات والعملاء":"#19A2A5","المنتجات والمخزون":"#1BBFA0","التقارير":"#F59E0B",
+  "المحاسبة":"#8B5CF6","المشتريات والموردين":"#EF4444","الربط مع التطبيقات":"#2563EB",
+  "إعدادات الحساب":"#EC4899","لوحة التحكم":"#F97316","المخزون":"#17D4B8"
+};
+const M_EN = {
+  "المبيعات والعملاء":"Sales & Customers","المنتجات والمخزون":"Products & Inventory",
+  "التقارير":"Reports","المحاسبة":"Accounting","المشتريات والموردين":"Purchasing",
+  "الربط مع التطبيقات":"Integrations","إعدادات الحساب":"Account Settings",
+  "لوحة التحكم":"Dashboard","المخزون":"Inventory"
+};
+
+let ALL_STATUSES = [];
+let ALL_MODULES  = [];
+
+// ════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════
+let lang = "en", dark = false, curTab = "ideas", ideasPage = 1;
+const PER = 15;
+const TODAY = new Date().toISOString().split("T")[0];
+
+const F = {
+  i: {status:[],module:[],from:"2022-10-27",to:TODAY},
+  a: {status:[],module:[],from:"2022-10-27",to:TODAY},
+  t: {status:[],module:[],from:"2022-10-27",to:TODAY,iv:"monthly"}
+};
+const MS_SEL = {};
+
+let chSt=null,chMod=null,chTrend=null,chML=null,chSL=null;
+
+// ════════════════════════════════════════════════════
+// SYNC STATUS (minimal, bilingual)
+// ════════════════════════════════════════════════════
+const SYNC_MSGS = {
+  fetching: {ar:"🔄 جارٍ التحميل...", en:"🔄 Fetching data...", color:"var(--t4)"},
+  success:  {ar:"✅ تم التحديث",      en:"✅ Dashboard updated", color:"var(--green)"},
+  error:    {ar:"❌ فشل الاتصال",     en:"❌ Connection failed",  color:"var(--red)"},
+  manual:   {ar:"📂 تم التحميل",     en:"📂 Data loaded",        color:"var(--green)"},
+  timeout:  {ar:"⚠️ تحميل يدوي",     en:"⚠️ Load manually",      color:"var(--orange)"},
+};
+
+let _syncState = "fetching";
+let _syncTimeStr = "";
+
+function setSyncStatus(state, timeStr) {
+  _syncState = state;
+  if (timeStr !== undefined) _syncTimeStr = timeStr;
+  renderSyncStatus();
+}
+
+function renderSyncStatus() {
+  const el = document.getElementById("syncStatus");
+  if (!el) return;
+  const msg = SYNC_MSGS[_syncState];
+  el.style.color = msg.color;
+
+  if (_syncState === "timeout") {
+    el.innerHTML = msg[lang] + ' — <label style="cursor:pointer;text-decoration:underline;color:inherit" for="fallbackCsvPicker">' +
+      (lang === "ar" ? "اختر ملف CSV" : "pick CSV") + '</label>';
+  } else if (_syncState === "success" && _syncTimeStr) {
+    el.textContent = msg[lang] + " " + _syncTimeStr;
+  } else {
+    el.textContent = msg[lang];
+  }
+}
+
+// ════════════════════════════════════════════════════
+// LIVE SYNC
+// ════════════════════════════════════════════════════
+function initDashboardLiveSync() {
+  var sheetId = "1f3uqS-Fcxf6y15vxI48kXsKTCNtqltEbIi2PnTbH1rI";
+
+  var fallbackInput = document.createElement("input");
+  fallbackInput.type = "file";
+  fallbackInput.id = "fallbackCsvPicker";
+  fallbackInput.accept = ".csv";
+  fallbackInput.style.display = "none";
+  document.body.appendChild(fallbackInput);
+
+  fallbackInput.addEventListener("change", function(evt) {
+    var fileObj = evt.target.files[0];
+    if (!fileObj) return;
+    Papa.parse(fileObj, {
+      header: true,
+      skipEmptyLines: true,
+      complete: function(results) {
+        setSyncStatus("manual");
+        parseRawEcosystemData(results.data);
+      }
+    });
+  });
+
+  var timeoutId = setTimeout(function() {
+    setSyncStatus("timeout");
+    renderSyncStatus();
+  }, 3500);
+
+  var script = document.createElement("script");
+  script.src = "https://docs.google.com/spreadsheets/d/" + sheetId + "/gviz/tq?tqx=responseHandler:processEcosystemPayload";
+  script.onerror = function() {
+    clearTimeout(timeoutId);
+    setSyncStatus("error");
+  };
+  document.body.appendChild(script);
+
+  window._syncTimeoutId = timeoutId;
+}
+
+function fetchHeaderRowValue(rowObj, metricName) {
+  var matchedKey = Object.keys(rowObj).find(function(key) {
+    return key.toLowerCase().replace(/[\s_]/g, "") === metricName.toLowerCase().replace(/[\s_]/g, "");
+  });
+  return matchedKey ? rowObj[matchedKey] : "";
+}
+
+window.processEcosystemPayload = function(response) {
+  if (window._syncTimeoutId) clearTimeout(window._syncTimeoutId);
+
+  if (!response || response.status !== "ok") {
+    setSyncStatus("error");
+    return;
+  }
+
+  var table = response.table;
+  var cols = table.cols;
+  var rows = table.rows;
+
+  var labelMap = {};
+  cols.forEach(function(col, i) {
+    var rawLabel = col.label ? col.label.trim().toLowerCase().replace(/[\s_]/g, "") : "";
+    labelMap[rawLabel] = i;
+  });
+
+  var compiled = rows
+    .filter(function(r) { return r && r.c && r.c.some(function(c) { return c && c.v != null && c.v !== ""; }); })
+    .map(function(r) {
+      var c = r.c;
+      function cell(key) { return c[labelMap[key]] ? (c[labelMap[key]].v || "") : ""; }
+      function cellStr(key) { return String(cell(key)); }
+      function cellF(key) { return c[labelMap[key]] ? (c[labelMap[key]].f || cellStr(key)) : ""; }
+      return {
+        Idea_idx:           cellStr("ideaidx"),
+        Idea_content:       cellStr("ideacontent"),
+        Vote_count:         parseInt(cell("votecount"), 10) || 0,
+        Module:             cellStr("module"),
+        Status:             cellStr("status"),
+        Author_name:        cellStr("authorname"),
+        Author_idx:         cellStr("authoridx"),
+        Idea_creation_date: cellF("ideacreationdate") || cellStr("ideacreationdate"),
+        Idea_link:          cellStr("idealink") || "#"
+      };
+    });
+
+  var now = new Date();
+  var timeStr = "(" + String(now.getHours()).padStart(2,"0") + ":" + String(now.getMinutes()).padStart(2,"0") + ")";
+  setSyncStatus("success", timeStr);
+  parseRawEcosystemData(compiled);
+};
+
+function parseRawEcosystemData(rawRows) {
+  RAW = rawRows.map(function(row) {
+    var dateStr = getRowValue(row, "Idea_creation_date");
+    var cleanDate = dateStr ? (dateStr.indexOf("T") !== -1 ? dateStr.split("T")[0] : dateStr) : "";
+    return {
+      id:        getRowValue(row, "Idea_idx") || "unknown",
+      content:   getRowValue(row, "Idea_content") || "",
+      votes:     parseInt(getRowValue(row, "Vote_count"), 10) || 0,
+      module:    getRowValue(row, "Module") || "General",
+      status:    getRowValue(row, "Status") || "Idea Added",
+      author:    getRowValue(row, "Author_name") || "Anonymous",
+      authorIdx: getRowValue(row, "Author_idx") || "",
+      date:      cleanDate,
+      link:      getRowValue(row, "Idea_link") || "#"
+    };
+  });
+
+  var dynamicStatuses = [...new Set(RAW.map(r => r.status).filter(Boolean))];
+  var dynamicModules  = [...new Set(RAW.map(r => r.module).filter(Boolean))];
+  ALL_STATUSES.length = 0; ALL_STATUSES.push(...dynamicStatuses);
+  ALL_MODULES.length  = 0; ALL_MODULES.push(...dynamicModules);
+
+  applyLang();
+  renderIdeas();
+}
+
+// ════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════
+const tr = (ar, en) => lang === "ar" ? ar : en;
+const mName  = m => lang === "en" ? (M_EN[m] || m) : m;
+const sLabel = s => { const c = S_CFG[s]; return c ? (lang === "ar" ? c.ar : c.en) : s; };
+const mc  = m => M_CLR[m] || "#19A2A5";
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+function getRowValue(row, columnName) {
+  return fetchHeaderRowValue(row, columnName);
+}
+
+function getF(scope) {
+  const f = scope === "i" ? F.i : scope === "a" ? F.a : F.t;
+  return RAW.filter(r => {
+    const dOk = !r.date || ((!f.from || r.date >= f.from) && (!f.to || r.date <= f.to));
+    const sOk = !f.status.length || f.status.includes(r.status);
+    const mOk = !f.module.length || f.module.includes(r.module);
+    return dOk && sOk && mOk;
+  });
+}
+
+function getKey(d, iv) {
+  const dt = new Date(d);
+  if (iv === "monthly")   return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}`;
+  if (iv === "quarterly") return `${dt.getFullYear()}-Q${Math.ceil((dt.getMonth()+1)/3)}`;
+  return `${dt.getFullYear()}`;
+}
+
+function fmtKey(k, iv) {
+  const AR = ["","يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+  const EN = ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  if (iv === "monthly")   { const [y,m] = k.split("-"); return `${lang==="ar"?AR[+m]:EN[+m]}'${String(y).slice(2)}`; }
+  if (iv === "quarterly") { const [y,q] = k.split("-"); return `${q}'${String(y).slice(2)}`; }
+  return k;
+}
+
+function ccol() {
+  return {
+    grid: dark ? "rgba(26,107,110,.18)" : "rgba(0,0,0,.07)",
+    text: dark ? "#94a3b8" : "#64748b",
+    bg:   dark ? "#102C36" : "#fff"
+  };
+}
+
+function destroyAll() {
+  [chSt, chMod, chTrend, chML, chSL].forEach(c => { if (c) { try { c.destroy(); } catch(e) {} } });
+  chSt = chMod = chTrend = chML = chSL = null;
+  ["cvStatus","cvModule","cvTrend","cvModLine","cvStLine"].forEach(id => {
+    const old = document.getElementById(id);
+    if (!old) return;
+    const fresh = document.createElement("canvas");
+    fresh.id = id;
+    old.parentNode.replaceChild(fresh, old);
+  });
+}
+
+// ════════════════════════════════════════════════════
+// LANG & THEME
+// ════════════════════════════════════════════════════
+const STRINGS = {
+  brandTitle:    {ar:"لوحة تحكم الأفكار",         en:"Ideas Dashboard"},
+  brandSub:      {ar:"آخر تحديث: مايو ٢٠٢٦",      en:"Latest Update"},
+  tabIdeas:      {ar:"💡 الأفكار",                 en:"💡 Ideas"},
+  tabAnalysis:   {ar:"📊 التحليل",                en:"📊 Analysis"},
+  tabTrends:     {ar:"📈 الاتجاهات",              en:"📈 Trends"},
+  kpiTotalLbl:   {ar:"إجمالي الأفكار",              en:"Total Ideas"},
+  kpiLaunchedLbl:{ar:"الأفكار المُطلقة",            en:"Launched Ideas"},
+  kpiVotesLbl:   {ar:"إجمالي التصويتات",          en:"Total Votes"},
+  kpiPendingLbl: {ar:"أفكار قيد المتابعة",          en:"Pending Ideas"},
+  kpiPendingSub: {ar:"مضافة ولم يُطلق بعد",        en:"Added, not launched yet"},
+  sortOptV:      {ar:"الأعلى تصويتاً",              en:"Most Voted"},
+  sortOptD:      {ar:"الأحدث",                     en:"Newest"},
+  lblFrom:       {ar:"من:",                         en:"From:"},
+  lblTo:         {ar:"إلى:",                        en:"To:"},
+  iReset:        {ar:"إعادة ضبط",                   en:"Reset"},
+  aReset:        {ar:"إعادة ضبط",                   en:"Reset"},
+  tReset:        {ar:"إعادة ضبط",                   en:"Reset"},
+  aLblFrom:      {ar:"من:",                         en:"From:"},
+  aLblTo:        {ar:"إلى:",                        en:"To:"},
+  tLblFrom:      {ar:"من:",                         en:"From:"},
+  tLblTo:        {ar:"إلى:",                        en:"To:"},
+  tLblIv:        {ar:"الفترة:",                     en:"Interval:"},
+  ivOptM:        {ar:"شهري",                        en:"Monthly"},
+  ivOptQ:        {ar:"ربع سنوي",                   en:"Quarterly"},
+  ivOptY:        {ar:"سنوي",                        en:"Yearly"},
+  aTitleStatus:  {ar:"الأفكار حسب الحالة",          en:"Ideas by Status"},
+  aSubStatus:    {ar:"اضغط على الحالة للتصفية 👆", en:"Click status to filter 👆"},
+  aTitleModule:  {ar:"الأفكار حسب الوحدة",          en:"Ideas by Module"},
+  aSubModule:    {ar:"اضغط على الوحدة للتصفية 👆", en:"Click module to filter 👆"},
+  aTitle20:      {ar:"🏆 أعلى 20 فكرة بالتصويتات", en:"🏆 Top 20 Ideas by Votes"},
+  aSub20:        {ar:"اضغط على الفكرة للذهاب في Frill 👆", en:"Click idea to open in Frill 👆"},
+  aTitle5:       {ar:"👥 أبرز 5 عملاء بالأفكار",   en:"👥 Top 5 Customers by Ideas"},
+  aTitleLR:      {ar:"📦 نسبة الإطلاق حسب الوحدة", en:"📦 Launch Rate by Module"},
+  tTitle1:       {ar:"🔄 اتجاه الأفكار عبر الزمن", en:"🔄 Ideas Trend Over Time"},
+  tTitle2:       {ar:"📊 اتجاه الأفكار حسب الوحدة",en:"📊 Trend by Module"},
+  tTitle3:       {ar:"📊 اتجاه الأفكار حسب الحالة",en:"📊 Trend by Status"},
+};
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.body.dir = lang === "ar" ? "rtl" : "ltr";
+  document.body.classList.toggle("ltr", lang !== "ar");
+  document.getElementById("lbAr").classList.toggle("active", lang === "ar");
+  document.getElementById("lbEn").classList.toggle("active", lang === "en");
+  Object.entries(STRINGS).forEach(([id, v]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = v[lang];
+  });
+  ["msIS","msIM","msAS","msAM","msTS","msTM"].forEach(id => updateMsLabel(id));
+  const si = document.getElementById("searchInput");
+  if (si) si.placeholder = "🔍  " + (lang === "ar" ? "بحث في الأفكار..." : "Search ideas...");
+  renderSyncStatus();
+}
+
+const LOGO_AR = document.getElementById("brandLogo").outerHTML;
+const LOGO_EN = `<svg id="brandLogo" xmlns="http://www.w3.org/2000/svg" width="120" height="28" viewBox="0 0 236.63 55.61"><g><path d="M32.32,16.94c-.07.24-.15.47-.24.7l-3.52,10.4-3.79,11.2-2.74,8.11h0s-.02.09-.04.12c-.34.91-1.21,1.55-2.23,1.55s-1.97-.71-2.27-1.68h0l-2.39-8.34-6.05-21.11-2.35-8.19c-.02-.07-.05-.14-.06-.21h0c-.04-.18-.06-.36-.06-.55,0-1.31,1.07-2.37,2.37-2.37l2.81-.22,5.62-.43,5.75-.44h0c.2,0,.4-.01.6-.01,4.94,0,8.95,4.02,8.95,8.95,0,.87-.12,1.71-.36,2.5h0ZM33.94,4.23C31.27,1.55,27.73.06,23.96,0c-.08,0-.15,0-.23,0h-14.78s-.04,0-.06,0C3.98.03,0,4.03,0,8.95c0,.82.11,1.62.32,2.37,0,.02,0,.03.01.05,0,.02.01.05.02.07l10.78,37.59h0c1.04,3.79,4.52,6.58,8.63,6.58,2.47,0,4.71-1,6.33-2.63,1.08-1.08,1.89-2.44,2.31-3.95h0l9.13-30.32.05-.16s0-.01,0-.02c.38-1.31.58-2.69.58-4.09,0-3.85-1.5-7.48-4.23-10.21" fill="#00a4a6"/><path d="M67.51,10.35c-.87-.02-2.23-.03-4.08-.03-4.71,0-8.19,1.31-10.33,3.91-2.18,2.64-3.3,6.83-3.35,12.45l-.07,18.94c0,.12.06.2.1.24.04.04.12.1.24.1h5.41c.19,0,.34-.15.34-.34v-18.95c0-3.86.54-6.49,1.64-8.04h0c1.14-1.61,3.17-2.43,6.01-2.43l4.06.06c.14,0,.21-.06.24-.1.04-.04.1-.12.1-.24v-5.23c0-.19-.14-.33-.33-.34Z" fill="#00a4a6"/><path d="M95.16,12.02c-2.33-1.47-5.15-2.22-8.38-2.22-3.05,0-5.88.81-8.42,2.41-2.55,1.61-4.6,3.81-6.08,6.54-1.49,2.74-2.24,5.76-2.24,8.98s.75,6.48,2.25,9.25c1.49,2.76,3.57,4.98,6.18,6.61,2.64,1.57,5.63,2.37,8.87,2.37,3.42,0,6.55-.9,9.32-2.67,2.49-1.59,4.46-3.76,5.86-6.45.09-.17.03-.37-.13-.47l-4.1-2.4c-.16-.09-.36-.04-.46.12-2.4,3.97-5.86,5.98-10.29,5.98-2.21,0-4.22-.5-5.95-1.49-1.74-.99-3.13-2.42-4.12-4.25-.51-1.06-.87-2.08-1.1-3.06-.13-.55,0-1.13.35-1.57.35-.44.88-.69,1.44-.69h24.72c.19,0,.33-.14.34-.33,0-.33.01-.69.01-1.11,0-3.42-.75-6.51-2.24-9.2-1.49-2.69-3.46-4.83-5.84-6.36ZM96.56,22.7c-.34.55-1.29.88-1.93.88h-15.47c-.65,0-1.57-.33-1.9-.89-.34-.56-.03-1.25.29-1.84.64-1.21,1.61-2.28,2.87-3.19,1.84-1.32,4-1.99,6.43-1.99,2.23,0,4.34.64,6.29,1.89,1.4.9,2.46,2.02,3.13,3.33.29.58.63,1.25.29,1.8Z" fill="#00a4a6"/><path d="M145.19,32.47c-.21.52-.71.85-1.25.83-.56-.01-1.03-.36-1.22-.89l-7.29-20.88c-.36-1.04-1.34-1.73-2.44-1.73h-.42c-1.1,0-2.08.7-2.44,1.74l-7.23,20.87c-.18.53-.66.87-1.21.89-.54.03-1.05-.31-1.26-.83l-9.14-22.67h-6.86l14.85,34.6c.41.95,1.34,1.56,2.37,1.56h.38c1.1,0,2.08-.7,2.44-1.74l7.05-20.38c.19-.54.68-.89,1.25-.89s1.06.35,1.25.89l7.05,20.38c.36,1.04,1.34,1.74,2.44,1.74h.44c1.04,0,1.97-.62,2.37-1.57l14.79-34.59h-6.86l-9.07,22.67Z" fill="#00a4a6"/><path d="M196.98,9.8h-5.28c-.19,0-.34.15-.34.34v.89c0,.7-.39,1.34-1.02,1.65-.62.31-1.34.25-1.89-.16-.95-.71-2.01-1.3-3.14-1.77-1.8-.74-3.72-1.11-5.71-1.11-2.91,0-5.61.8-8.02,2.36-2.43,1.58-4.38,3.79-5.8,6.57h0c-1.38,2.69-2.08,5.69-2.08,8.92,0,3.49.7,6.67,2.08,9.46,1.37,2.78,3.32,4.98,5.79,6.55,2.39,1.63,5.08,2.44,8.03,2.44,2.02,0,3.94-.38,5.7-1.14,1.1-.48,2.15-1.09,3.11-1.83.33-.26.73-.39,1.13-.39.28,0,.56.06.82.19.62.31,1.01.93,1.01,1.63v1.19c0,.19.15.34.34.34h5.28c.19,0,.34-.15.34-.34V10.14c0-.19-.15-.34-.34-.34ZM190.11,33.89c-.89,1.85-2.18,3.33-3.82,4.41-1.6,1.08-3.47,1.63-5.57,1.63s-3.96-.52-5.56-1.55c-1.59-1.02-2.88-2.52-3.82-4.43-.98-1.85-1.48-4-1.48-6.37,0-2.16.45-4.18,1.33-6.01.9-1.86,2.21-3.32,3.91-4.35,1.64-1.02,3.53-1.54,5.61-1.54s3.96.52,5.56,1.55c1.6,1.02,2.88,2.49,3.82,4.36.89,1.75,1.33,3.77,1.33,5.99,0,2.36-.45,4.49-1.33,6.31Z" fill="#00a4a6"/><path d="M236.29,9.8h-5.28c-.19,0-.34.15-.34.34v.89c0,.7-.39,1.34-1.02,1.65-.62.31-1.34.25-1.89-.16-.96-.71-2.01-1.31-3.14-1.77-1.8-.74-3.73-1.11-5.71-1.11-2.91,0-5.6.8-8.02,2.36-2.43,1.58-4.38,3.79-5.8,6.57h0c-1.38,2.69-2.08,5.69-2.08,8.92,0,3.49.7,6.67,2.08,9.46,1.37,2.78,3.32,4.98,5.79,6.55,2.39,1.63,5.08,2.44,8.03,2.44,2.02,0,3.94-.38,5.7-1.14,1.1-.48,2.15-1.09,3.11-1.83.33-.26.73-.39,1.13-.39.28,0,.56.06.82.19.62.31,1.01.93,1.01,1.63v1.19c0,.19.15.34.34.34h5.28c.19,0,.34-.15.34-.34V10.14c0-.19-.15-.34-.34-.34ZM229.41,33.89c-.89,1.85-2.18,3.33-3.82,4.41-1.6,1.08-3.47,1.63-5.57,1.63s-3.96-.52-5.56-1.55c-1.59-1.02-2.88-2.52-3.82-4.43-.98-1.85-1.48-4-1.48-6.37,0-2.16.45-4.19,1.33-6.01.9-1.86,2.21-3.32,3.91-4.35,1.64-1.02,3.53-1.54,5.61-1.54s3.96.52,5.56,1.55c1.59,1.02,2.88,2.49,3.82,4.36.89,1.75,1.33,3.77,1.33,5.99,0,2.36-.45,4.49-1.33,6.31Z" fill="#00a4a6"/></g></svg>`;
+
+function setLang(l) {
+  lang = l;
+  const logoEl = document.getElementById("brandLogo");
+  if (logoEl) logoEl.outerHTML = (l === "en" ? LOGO_EN : LOGO_AR);
+  applyLang();
+  if (RAW.length > 0) {
+    renderIdeas();
+    if (curTab === "analysis") runAnalysis();
+    if (curTab === "trends")   runTrends();
+  }
+}
+
+function toggleTheme() {
+  dark = !dark;
+  document.body.classList.toggle("light", !dark);
+  document.getElementById("themeBtn").textContent = dark ? "☀️" : "🌙";
+  destroyAll();
+  if (curTab === "analysis") runAnalysis();
+  if (curTab === "trends")   runTrends();
+}
+
+// ── TABS ──
+function switchTab(t) {
+  curTab = t;
+  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("panel" + t.charAt(0).toUpperCase() + t.slice(1)).classList.add("active");
+  document.getElementById("tab"   + t.charAt(0).toUpperCase() + t.slice(1)).classList.add("active");
+  if (RAW.length > 0) {
+    if (t === "analysis") runAnalysis();
+    if (t === "trends")   runTrends();
+  }
+}
+
+// ── MULTI-SELECT ──
+const MS_MAP = {
+  msIS:{scope:"i",key:"status"}, msIM:{scope:"i",key:"module"},
+  msAS:{scope:"a",key:"status"}, msAM:{scope:"a",key:"module"},
+  msTS:{scope:"t",key:"status"}, msTM:{scope:"t",key:"module"},
+};
+
+function msToggle(id) {
+  const dropEl = document.getElementById(id + "Drop");
+  const isOpen = dropEl.classList.contains("open");
+  document.querySelectorAll(".ms-drop").forEach(d => d.classList.remove("open"));
+  if (!isOpen) { dropEl.classList.add("open"); buildMsDrop(id); }
+}
+
+function buildMsDrop(id) {
+  const {scope, key} = MS_MAP[id];
+  const sel  = MS_SEL[id] || [];
+  const opts = key === "status" ? ALL_STATUSES : ALL_MODULES;
+  const drop = document.getElementById(id + "Drop");
+  drop.innerHTML = "";
+
+  const allDiv = document.createElement("div");
+  allDiv.className = "ms-all" + (sel.length === 0 ? " sel" : "");
+  allDiv.textContent = tr("الكل","All");
+  allDiv.onclick = e => {
+    e.stopPropagation();
+    MS_SEL[id] = []; F[scope][key] = [];
+    updateMsLabel(id); drop.classList.remove("open"); triggerScope(scope);
+  };
+  drop.appendChild(allDiv);
+
+  opts.forEach(opt => {
+    const isSel = sel.includes(opt);
+    const div = document.createElement("div");
+    div.className = "ms-opt" + (isSel ? " sel" : "");
+    div.innerHTML = `<span class="ms-chk">${isSel ? "✓" : ""}</span><span>${key === "module" ? mName(opt) : (sLabel(opt) || opt)}</span>`;
+    div.onclick = e => {
+      e.stopPropagation();
+      const arr = MS_SEL[id] || (MS_SEL[id] = []);
+      const idx = arr.indexOf(opt);
+      if (idx >= 0) arr.splice(idx, 1); else arr.push(opt);
+      F[scope][key] = [...arr];
+      buildMsDrop(id); updateMsLabel(id); triggerScope(scope);
+    };
+    drop.appendChild(div);
+  });
+}
+
+function updateMsLabel(id) {
+  const {key} = MS_MAP[id] || {};
+  if (!key) return;
+  const sel   = MS_SEL[id] || [];
+  const lblEl = document.getElementById(id + "Lbl");
+  if (!lblEl) return;
+  const def = key === "status" ? tr("الحالة","Status") : tr("الوحدة","Module");
+  if (!sel.length)      lblEl.textContent = def;
+  else if (sel.length === 1) lblEl.textContent = key === "module" ? mName(sel[0]) : (sLabel(sel[0]) || sel[0]);
+  else                  lblEl.textContent = `${sel.length} ${tr("محدد","selected")}`;
+}
+
+function triggerScope(scope) {
+  if (scope === "i") { ideasPage = 1; renderIdeas(); }
+  else if (scope === "a") runAnalysis();
+  else runTrends();
+}
+
+document.addEventListener("click", e => {
+  if (!e.target.closest(".ms")) document.querySelectorAll(".ms-drop").forEach(d => d.classList.remove("open"));
+});
+
+// ── IDEAS TAB ──
+function getIdeasData() {
+  F.i.from = document.getElementById("iDateFrom").value;
+  F.i.to   = document.getElementById("iDateTo").value;
+  const search = (document.getElementById("searchInput").value || "").toLowerCase();
+  let d = getF("i");
+  if (search) d = d.filter(r => (r.content||"").toLowerCase().includes(search) || (r.author||"").toLowerCase().includes(search));
+  const sort = document.getElementById("sortSel").value;
+  return d.sort((a,b) => sort === "votes" ? b.votes - a.votes : b.date.localeCompare(a.date));
+}
+
+function renderIdeas() {
+  if (RAW.length === 0) return;
+  const data   = getIdeasData();
+  updateKPIs(data);
+  const total  = data.length;
+  document.getElementById("iCount").textContent = `${total} ${tr("فكرة","ideas")}`;
+  const totalP = Math.ceil(total / PER);
+  ideasPage    = Math.max(1, Math.min(ideasPage, totalP || 1));
+  const slice  = data.slice((ideasPage-1)*PER, ideasPage*PER);
+
+  document.getElementById("ideasList").innerHTML = slice.map(r => {
+    const sc  = S_CFG[r.status] || {ar:r.status,en:r.status,c:"#19A2A5",bg:"#cffafe"};
+    const mc2 = mc(r.module);
+    const vc  = r.votes >= 50 ? "#F59E0B" : r.votes >= 20 ? "#19A2A5" : "#94a3b8";
+    return `<div class="idea-row" style="border-right:4px solid ${mc2}" data-href="${r.link||""}" onclick="openLink(this)">
+      <div class="ivote"><div class="ivnum" style="color:${vc}">${r.votes}</div><div class="ivlbl">🗳️</div></div>
+      <div class="ibody">
+        <div class="itxt">${esc(r.content.substring(0,180))}${r.content.length>180?"…":""}</div>
+        <div class="itags">
+          <span class="tag" style="background:${sc.bg};color:${sc.c}">${lang==="ar"?sc.ar:sc.en}</span>
+          <span class="tag" style="background:${mc2}22;color:${mc2};border:1px solid ${mc2}40">${mName(r.module)}</span>
+          <span class="tmeta">👤 ${esc(r.author)}</span>
+          <span class="tmeta">📅 ${r.date}</span>
+          ${r.link && r.link !== "#" ? `<span style="color:#19A2A5;font-size:10px">🔗 ${tr("رابط","Link")}</span>` : ""}
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+
+  const pg = document.getElementById("pag");
+  if (totalP <= 1) { pg.innerHTML = ""; return; }
+  let html = `<button class="pb" onclick="goPg(${ideasPage-1})">&#8249;</button>`;
+  for (let i = 1; i <= totalP; i++) {
+    if (totalP <= 7 || i === 1 || i === totalP || Math.abs(i-ideasPage) <= 2)
+      html += `<button class="pb${i===ideasPage?" active":""}" onclick="goPg(${i})">${i}</button>`;
+    else if (Math.abs(i-ideasPage) === 3)
+      html += `<span style="color:var(--sub);padding:4px">…</span>`;
+  }
+  html += `<button class="pb" onclick="goPg(${ideasPage+1})">&#8250;</button>`;
+  pg.innerHTML = html;
+}
+
+function goPg(p) {
+  const data = getIdeasData();
+  ideasPage = Math.max(1, Math.min(p, Math.ceil(data.length/PER) || 1));
+  renderIdeas();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function updateKPIs(data) {
+  const total    = data.length;
+  const launched = data.filter(r => r.status.indexOf("تم الإطلاق") !== -1 || r.status.toLowerCase().indexOf("launched") !== -1).length;
+  const votes    = data.reduce((s,r) => s + r.votes, 0);
+  const pending  = total - launched;
+  const avg      = total ? (votes/total).toFixed(1) : 0;
+  const pct      = total ? ((launched/total)*100).toFixed(1) : 0;
+  document.getElementById("kpiTotal").textContent    = total.toLocaleString();
+  document.getElementById("kpiLaunched").textContent = launched.toLocaleString();
+  document.getElementById("kpiLaunchSub").textContent= `${pct}% ${tr("من الإجمالي","of total")}`;
+  document.getElementById("kpiVotes").textContent    = votes.toLocaleString();
+  document.getElementById("kpiAvgSub").textContent   = `${tr("متوسط","Avg")}: ${avg}`;
+  document.getElementById("kpiPending").textContent  = pending.toLocaleString();
+  document.getElementById("hdrBadge").textContent    = `📄 ${total}`;
+}
+
+function resetIdeas() {
+  F.i = {status:[],module:[],from:"2022-10-27",to:TODAY};
+  MS_SEL["msIS"] = []; MS_SEL["msIM"] = [];
+  document.getElementById("searchInput").value = "";
+  document.getElementById("iDateFrom").value   = "2022-10-27";
+  document.getElementById("iDateTo").value     = TODAY;
+  document.getElementById("sortSel").value     = "votes";
+  ["msIS","msIM"].forEach(updateMsLabel);
+  ideasPage = 1; renderIdeas();
+}
+
+// ── ANALYSIS TAB ──
+function runAnalysis() {
+  if (RAW.length === 0) return;
+  destroyAll();
+  F.a.from = document.getElementById("aDateFrom").value;
+  F.a.to   = document.getElementById("aDateTo").value;
+  const data = getF("a");
+  document.getElementById("aCount").textContent = `${data.length} ${tr("فكرة","ideas")}`;
+  buildStatusChart(data);
+  buildModuleChart(data);
+  buildTop20(data);
+  buildTop5(data);
+  buildLR(data);
+}
+
+function resetAnalysis() {
+  F.a = {status:[],module:[],from:"2022-10-27",to:TODAY};
+  MS_SEL["msAS"] = []; MS_SEL["msAM"] = [];
+  document.getElementById("aDateFrom").value = "2022-10-27";
+  document.getElementById("aDateTo").value   = TODAY;
+  ["msAS","msAM"].forEach(updateMsLabel);
+  runAnalysis();
+}
+
+function buildStatusChart(data) {
+  const map = {};
+  data.forEach(r => { if (r.status) map[r.status] = (map[r.status]||0) + 1; });
+  const entries = Object.entries(map).sort((a,b) => b[1]-a[1]);
+  const cc  = ccol();
+  const ctx = document.getElementById("cvStatus");
+  chSt = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: entries.map(([s]) => sLabel(s) || s),
+      datasets: [{
+        data: entries.map(([,v]) => v),
+        backgroundColor: entries.map(([s]) => S_CFG[s]?.c || "#19A2A5"),
+        borderWidth: 2,
+        borderColor: cc.bg,
+        hoverOffset: 5
+      }]
+    },
+    options: {
+      plugins: {
+        legend: {display:false},
+        tooltip: {callbacks: {label: c => `${c.label}: ${c.raw}`}}
+      },
+      cutout: "55%",
+      responsive: true,
+      onClick: (e, el) => { if (!el.length) return; const s = entries[el[0].index][0]; toggleAF("status", s, "msAS"); }
+    }
+  });
+
+  const legEl = document.getElementById("statusLeg");
+  legEl.innerHTML = entries.map(([s,v]) => {
+    const cfg    = S_CFG[s] || {c:"#19A2A5"};
+    const active = !F.a.status.length || F.a.status.includes(s);
+    return `<div class="sleg-item" style="opacity:${active?1:.4}" onclick="toggleAF('status','${s.replace(/'/g,"\\'")}','msAS')">
+      <div class="sleg-dot" style="background:${cfg.c}"></div>
+      <span class="sleg-lbl">${sLabel(s)||s}</span>
+      <span class="sleg-val" style="color:${cfg.c}">${v}</span>
+    </div>`;
+  }).join("");
+}
+
+function buildModuleChart(data) {
+  const map = {};
+  data.forEach(r => { if (r.module) map[r.module] = (map[r.module]||0) + 1; });
+  const entries = Object.entries(map).sort((a,b) => b[1]-a[1]);
+  const cc  = ccol();
+  const ctx = document.getElementById("cvModule");
+  chMod = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: entries.map(([m]) => mName(m)),
+      datasets: [{
+        data: entries.map(([,v]) => v),
+        backgroundColor: entries.map(([m]) => { const c2 = mc(m); return (!F.a.module.length || F.a.module.includes(m)) ? c2 : c2+"55"; }),
+        borderRadius: 4,
+        label: tr("الأفكار","Ideas")
+      }]
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {display:false},
+        tooltip: {callbacks: {label: c => `${c.dataset.label}: ${c.raw}`}}
+      },
+      scales: {
+        x: {grid:{color:cc.grid}, ticks:{color:cc.text}},
+        y: {grid:{color:"transparent"}, ticks:{color:cc.text,font:{size:11}}}
+      },
+      onClick: (e, el) => { if (!el.length) return; const m = entries[el[0].index][0]; toggleAF("module", m, "msAM"); }
+    }
+  });
+}
+
+function toggleAF(key, val, msId) {
+  const arr = F.a[key];
+  const idx = arr.indexOf(val);
+  if (idx >= 0) arr.splice(idx, 1); else arr.push(val);
+  MS_SEL[msId] = [...arr];
+  updateMsLabel(msId);
+  runAnalysis();
+}
+
+function buildTop20(data) {
+  const top    = [...data].sort((a,b) => b.votes-a.votes).slice(0,20);
+  const maxV   = top[0]?.votes || 1;
+  const medals = ["🥇","🥈","🥉"];
+  document.getElementById("t20").innerHTML = `<thead><tr>
+    <th>#</th>
+    <th>${tr("الفكرة","Idea")}</th>
+    <th>${tr("الحالة","Status")}</th>
+    <th>${tr("الوحدة","Module")}</th>
+    <th>${tr("التصويتات","Votes")}</th>
+  </tr></thead><tbody>${top.map((r,i) => {
+    const sc  = S_CFG[r.status] || {ar:r.status,en:r.status,c:"#19A2A5",bg:"#cffafe"};
+    const mc2 = mc(r.module);
+    const bw  = Math.max(6, Math.round((r.votes/maxV)*70));
+    return `<tr data-href="${r.link||""}" onclick="openLink(this)">
+      <td style="text-align:center;font-weight:700;color:${i<3?["#F59E0B","#94a3b8","#cd7c2f"][i]:"var(--sub)"}">${i<3?medals[i]:"#"+(i+1)}</td>
+      <td style="max-width:280px">${esc(r.content.substring(0,80))}${r.content.length>80?"…":""}</td>
+      <td><span class="tag" style="background:${sc.bg};color:${sc.c}">${lang==="ar"?sc.ar:sc.en}</span></td>
+      <td><span class="tag" style="background:${mc2}22;color:${mc2}">${mName(r.module)}</span></td>
+      <td style="text-align:center"><span class="barmini" style="width:${bw}px;margin-left:6px;margin-right:6px"></span><b style="color:#F59E0B">${r.votes}</b></td>
+    </tr>`;
+  }).join("")}</tbody>`;
+}
+
+function buildTop5(data) {
+  const map = {};
+  data.forEach(r => {
+    const k = r.authorIdx || r.author;
+    if (!map[k]) map[k] = {name:r.author, ideas:[], votes:0};
+    map[k].ideas.push(r);
+    map[k].votes += r.votes;
+  });
+  const top5 = Object.values(map).sort((a,b) => b.ideas.length - a.ideas.length).slice(0,5);
+  document.getElementById("top5").innerHTML = top5.map((c,i) => `
+    <div class="cust-card">
+      <div class="cust-hdr" onclick="togCust(${i})">
+        <div class="cavatar">${c.name.charAt(0)}</div>
+        <div style="flex:1;min-width:0">
+          <div class="cname">${esc(c.name)}</div>
+          <div class="cmeta">${c.ideas.length} ${tr("أفكار","ideas")} • ${c.votes} ${tr("تصويت","votes")}</div>
+        </div>
+        <div class="cbadges">
+          <span class="tag" style="background:rgba(25,162,165,.15);color:#19A2A5">${c.ideas.length} 💡</span>
+          <span class="tag" style="background:rgba(245,158,11,.15);color:#F59E0B">${c.votes} 🗳️</span>
+        </div>
+        <span class="carr" id="ca${i}">▼</span>
+      </div>
+      <div class="cust-body" id="cb${i}">
+        ${c.ideas.sort((a,b) => b.votes-a.votes).map(r => {
+          const sc = S_CFG[r.status] || {ar:r.status,en:r.status,c:"#19A2A5",bg:"#cffafe"};
+          return `<div class="cidea-row" data-href="${r.link||""}" onclick="event.stopPropagation();openLink(this)">
+            <b style="color:#F59E0B;min-width:26px;font-size:12px">${r.votes}</b>
+            <span style="flex:1;font-size:11px;line-height:1.5;word-break:break-word">${esc(r.content)}</span>
+            <span class="tag" style="background:${sc.bg};color:${sc.c}">${lang==="ar"?sc.ar:sc.en}</span>
+            ${r.link && r.link !== "#" ? `<span style="color:#19A2A5;font-size:10px">🔗</span>` : ""}
+          </div>`;
+        }).join("")}
+      </div>
+    </div>`).join("");
+}
+
+function togCust(i) {
+  document.getElementById("cb" + i).classList.toggle("open");
+  document.getElementById("ca" + i).classList.toggle("open");
+}
+
+function buildLR(data) {
+  const map = {};
+  data.forEach(r => {
+    if (r.module) {
+      if (!map[r.module]) map[r.module] = {t:0, l:0};
+      map[r.module].t++;
+      if (r.status.indexOf("تم الإطلاق") !== -1 || r.status.toLowerCase().indexOf("launched") !== -1) map[r.module].l++;
+    }
+  });
+  const entries = Object.entries(map).sort((a,b) => (b[1].l/b[1].t) - (a[1].l/a[1].t));
+  document.getElementById("lrGrid").innerHTML = entries.map(([m,v]) => {
+    const pct = Math.round((v.l/v.t)*100);
+    const mc2 = mc(m);
+    return `<div class="lr-item">
+      <div class="lr-hdr"><span class="lr-name">${mName(m)}</span><span class="lr-pct" style="color:${mc2}">${pct}%</span></div>
+      <div class="lr-track"><div class="lr-fill" style="width:${pct}%;background:${mc2}"></div></div>
+      <div class="lr-sub">${v.l} ${tr("تم الإطلاق","Launched")} ${tr("من","of")} ${v.t}</div>
+    </div>`;
+  }).join("");
+}
+
+// ── TRENDS TAB ──
+function runTrends() {
+  if (RAW.length === 0) return;
+  destroyAll();
+  F.t.from = document.getElementById("tDateFrom").value;
+  F.t.to   = document.getElementById("tDateTo").value;
+  F.t.iv   = document.getElementById("ivSel").value;
+  const iv    = F.t.iv;
+  const ivLbl = iv==="monthly" ? tr("شهري","Monthly") : iv==="quarterly" ? tr("ربع سنوي","Quarterly") : tr("سنوي","Yearly");
+  document.getElementById("tSub1").textContent = `${tr("التغيير بين الفترات","Change between periods")} • ${ivLbl}`;
+  const data = getF("t");
+  buildTrendChart(data);
+  buildModLineChart(data);
+  buildStLineChart(data);
+}
+
+function resetTrends() {
+  F.t = {status:[],module:[],from:"2022-10-27",to:TODAY,iv:"monthly"};
+  MS_SEL["msTS"] = []; MS_SEL["msTM"] = [];
+  document.getElementById("tDateFrom").value = "2022-10-27";
+  document.getElementById("tDateTo").value   = TODAY;
+  document.getElementById("ivSel").value     = "monthly";
+  ["msTS","msTM"].forEach(updateMsLabel);
+  runTrends();
+}
+
+function buildTrendChart(data) {
+  const iv  = F.t.iv;
+  const map = {};
+  data.forEach(r => { if (r.date) { const k = getKey(r.date,iv); map[k] = (map[k]||0) + 1; } });
+  const keys   = Object.keys(map).sort();
+  const labels = keys.map(k => fmtKey(k,iv));
+  const counts = keys.map(k => map[k]);
+  const deltas = counts.map((c,i) => i===0 ? null : c - counts[i-1]);
+  const cc  = ccol();
+  const ctx = document.getElementById("cvTrend");
+
+  const deltaPlugin = {
+    id: "deltaLabels",
+    afterDatasetsDraw(chart) {
+      const {ctx:c2, scales:{x,y}} = chart;
+      if (!x || !y) return;
+      counts.forEach((v,i) => {
+        const d = deltas[i];
+        if (d === null) return;
+        try {
+          const xp = x.getPixelForValue(i);
+          const yp = y.getPixelForValue(v);
+          c2.save();
+          c2.font = "bold 9px sans-serif";
+          c2.fillStyle  = d >= 0 ? "#1BBFA0" : "#EF4444";
+          c2.textAlign  = "center";
+          c2.fillText(d >= 0 ? "+" + d : String(d), xp, yp - 6);
+          c2.restore();
+        } catch(e) {}
+      });
+    }
+  };
+
+  chTrend = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        label: tr("الأفكار","Ideas"),
+        data:  counts,
+        backgroundColor: counts.map((_,i) => deltas[i]===null ? "#19A2A5" : deltas[i]>=0 ? "#1BBFA0" : "#EF4444"),
+        borderRadius: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {display:false},
+        tooltip: {callbacks: {
+          label: c => { const d = deltas[c.dataIndex]; return `${c.raw}${d===null?"":(d>=0?` (+${d})`:`(${d})`)}` ; },
+          title: tt => [tt[0].label]
+        }}
+      },
+      scales: {
+        x: {grid:{color:"transparent"}, ticks:{color:cc.text,font:{size:9},maxRotation:45}},
+        y: {grid:{color:cc.grid},       ticks:{color:cc.text}}
+      }
+    },
+    plugins: [deltaPlugin]
+  });
+}
+
+function buildModLineChart(data) {
+  const iv   = F.t.iv;
+  const allK = new Set();
+  const mm   = {};
+  data.forEach(r => {
+    if (!r.date) return;
+    const k = getKey(r.date, iv);
+    allK.add(k);
+    if (!mm[r.module]) mm[r.module] = {};
+    mm[r.module][k] = (mm[r.module][k]||0) + 1;
+  });
+  const keys   = [...allK].sort();
+  const labels = keys.map(k => fmtKey(k,iv));
+  const mods   = Object.keys(mm);
+  const cc  = ccol();
+  const ctx = document.getElementById("cvModLine");
+
+  chML = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: mods.map(m => ({
+        label: mName(m),
+        data:  keys.map(k => mm[m][k] || 0),
+        borderColor: mc(m),
+        backgroundColor: "transparent",
+        borderWidth: 2,
+        pointRadius: 2,
+        tension: .3
+      }))
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {legend:{labels:{color:cc.text,font:{size:10}},position:"bottom"}},
+      scales: {
+        x: {grid:{color:"transparent"}, ticks:{color:cc.text,font:{size:9},maxRotation:45}},
+        y: {grid:{color:cc.grid},       ticks:{color:cc.text}}
+      }
+    }
+  });
+}
+
+function buildStLineChart(data) {
+  const iv   = F.t.iv;
+  const allK = new Set();
+  const sm   = {};
+  data.forEach(r => {
+    if (!r.date || !r.status) return;
+    const k = getKey(r.date, iv);
+    allK.add(k);
+    if (!sm[r.status]) sm[r.status] = {};
+    sm[r.status][k] = (sm[r.status][k]||0) + 1;
+  });
+  const keys   = [...allK].sort();
+  const labels = keys.map(k => fmtKey(k,iv));
+  const sts    = Object.keys(sm);
+  const cc  = ccol();
+  const ctx = document.getElementById("cvStLine");
+
+  chSL = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: sts.map(s => ({
+        label: sLabel(s) || s,
+        data:  keys.map(k => sm[s][k] || 0),
+        borderColor: S_CFG[s]?.c || "#19A2A5",
+        backgroundColor: "transparent",
+        borderWidth: 2,
+        pointRadius: 2,
+        tension: .3
+      }))
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {legend:{labels:{color:cc.text,font:{size:10}},position:"bottom"}},
+      scales: {
+        x: {grid:{color:"transparent"}, ticks:{color:cc.text,font:{size:9},maxRotation:45}},
+        y: {grid:{color:cc.grid},       ticks:{color:cc.text}}
+      }
+    }
+  });
+}
+
+// ── LINK HELPER ──
+function openLink(el) {
+  const url = el.getAttribute("data-href");
+  if (url && url !== "#") window.open(url, "_blank", "noopener");
+}
+
+// ════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════
+// Set all "To" date inputs to today so new records are never cut off
+["iDateTo","aDateTo","tDateTo"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.value = TODAY;
+});
+
+applyLang();
+initDashboardLiveSync();
+</script>
+</body>
+</html>
