@@ -248,9 +248,7 @@ body.ltr .ms-drop{right:auto;left:0}
     <input type="text" class="finp fsearch" id="searchInput" oninput="ideasPage=1;renderIdeas()">
     <div class="ms" id="msIS"><div class="ms-trg" onclick="msToggle('msIS')"><span id="msISLbl">الحالة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msISDrop"></div></div>
     <div class="ms" id="msIM"><div class="ms-trg" onclick="msToggle('msIM')"><span id="msIMLbl">الوحدة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msIMDrop"></div></div>
-    <!-- NEW: Design Involvement filter -->
-    <div class="ms" id="msID"><div class="ms-trg" onclick="msToggle('msID')"><span id="msIDLbl">Design</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msIDDrop"></div></div>
-    <!-- NEW: UI/UX filter -->
+    <!-- UI/UX filter -->
     <div class="ms" id="msIU"><div class="ms-trg" onclick="msToggle('msIU')"><span id="msIULbl">UI/UX</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msIUDrop"></div></div>
     <select class="fsel" id="sortSel" onchange="ideasPage=1;renderIdeas()"><option value="votes" id="sortOptV">الأعلى تصويتاً</option><option value="date" id="sortOptD">الأحدث</option></select>
     <span class="flbl" id="lblFrom">من:</span><input type="date" class="finp" id="iDateFrom" onchange="ideasPage=1;renderIdeas()">
@@ -267,9 +265,7 @@ body.ltr .ms-drop{right:auto;left:0}
   <div class="fbar">
     <div class="ms" id="msAS"><div class="ms-trg" onclick="msToggle('msAS')"><span id="msASLbl">الحالة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msASDrop"></div></div>
     <div class="ms" id="msAM"><div class="ms-trg" onclick="msToggle('msAM')"><span id="msAMLbl">الوحدة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msAMDrop"></div></div>
-    <!-- NEW: Design Involvement filter -->
-    <div class="ms" id="msAD"><div class="ms-trg" onclick="msToggle('msAD')"><span id="msADLbl">Design</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msADDrop"></div></div>
-    <!-- NEW: UI/UX filter -->
+    <!-- UI/UX filter -->
     <div class="ms" id="msAU"><div class="ms-trg" onclick="msToggle('msAU')"><span id="msAULbl">UI/UX</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msAUDrop"></div></div>
     <span class="flbl" id="aLblFrom">من:</span><input type="date" class="finp" id="aDateFrom" onchange="runAnalysis()">
     <span class="flbl" id="aLblTo">إلى:</span><input type="date" class="finp" id="aDateTo" onchange="runAnalysis()">
@@ -290,9 +286,7 @@ body.ltr .ms-drop{right:auto;left:0}
   <div class="fbar">
     <div class="ms" id="msTS"><div class="ms-trg" onclick="msToggle('msTS')"><span id="msTSLbl">الحالة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msTSDrop"></div></div>
     <div class="ms" id="msTM"><div class="ms-trg" onclick="msToggle('msTM')"><span id="msTMLbl">الوحدة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msTMDrop"></div></div>
-    <!-- NEW: Design Involvement filter -->
-    <div class="ms" id="msTD"><div class="ms-trg" onclick="msToggle('msTD')"><span id="msTDLbl">Design</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msTDDrop"></div></div>
-    <!-- NEW: UI/UX filter -->
+    <!-- UI/UX filter -->
     <div class="ms" id="msTU"><div class="ms-trg" onclick="msToggle('msTU')"><span id="msTULbl">UI/UX</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msTUDrop"></div></div>
     <span class="flbl" id="tLblFrom">من:</span><input type="date" class="finp" id="tDateFrom" onchange="runTrends()">
     <span class="flbl" id="tLblTo">إلى:</span><input type="date" class="finp" id="tDateTo" onchange="runTrends()">
@@ -375,7 +369,7 @@ var M_CLR = {"المبيعات والعملاء":"#19A2A5","المنتجات و�
 var M_EN  = {"المبيعات والعملاء":"Sales & Customers","المنتجات والمخزون":"Products & Inventory","التقارير":"Reports","المحاسبة":"Accounting","المشتريات والموردين":"Purchasing","الربط مع التطبيقات":"Integrations","إعدادات الحساب":"Account Settings","لوحة التحكم":"Dashboard","المخزون":"Inventory"};
 
 // All unique values for each filterable field
-var ALL_STATUSES=[], ALL_MODULES=[], ALL_DESIGNS=[], ALL_UIUXS=[];
+var ALL_STATUSES=[], ALL_MODULES=[], ALL_UIUXS=[];
 
 // ════════════════════════════════════════════════════
 // STATE
@@ -384,9 +378,9 @@ var lang="en", dark=false, curTab="ideas", ideasPage=1, PER=15;
 function getToday(){return new Date().toISOString().split("T")[0];}
 // F now includes design and uiux filter arrays for all scopes
 var F={
-  i:{status:[],module:[],design:[],uiux:[],from:DATE_MIN,to:getToday()},
-  a:{status:[],module:[],design:[],uiux:[],from:DATE_MIN,to:getToday()},
-  t:{status:[],module:[],design:[],uiux:[],from:DATE_MIN,to:getToday(),iv:"monthly"}
+  i:{status:[],module:[],uiux:[],from:DATE_MIN,to:getToday()},
+  a:{status:[],module:[],uiux:[],from:DATE_MIN,to:getToday()},
+  t:{status:[],module:[],uiux:[],from:DATE_MIN,to:getToday(),iv:"monthly"}
 };
 var MS_SEL={}, chSt=null, chMod=null, chTrend=null, chML=null, chSL=null;
 
@@ -464,12 +458,13 @@ function parseRawEcosystemData(rawRows){
   RAW = rawRows.map(function(row){
     var dateStr = getField(row,"Idea_creation_date");
     var cleanDate = dateStr ? (dateStr.indexOf("T")!==-1 ? dateStr.split("T")[0] : dateStr.trim()) : "";
-    // Parse Design_involvement — expected values: "Yes"/"No"/"" or "TRUE"/"FALSE" or similar
-    var rawDesign = getField(row,"Design_involvement").trim();
-    var designVal = (rawDesign===""||rawDesign.toLowerCase()==="no"||rawDesign==="0"||rawDesign.toLowerCase()==="false") ? "" : rawDesign;
-    // Parse UI_UX — same approach
-    var rawUiux = getField(row,"UI_UX").trim();
-    var uiuxVal = (rawUiux===""||rawUiux.toLowerCase()==="no"||rawUiux==="0"||rawUiux.toLowerCase()==="false") ? "" : rawUiux;
+    // Parse Design_involvement — try multiple possible column name variants
+    var rawDesign = (getField(row,"Design_involvement")||getField(row,"Design involvement")||getField(row,"design_involvement")||getField(row,"Design")||"").trim();
+    function isFalsy(v){return v===""||v.toLowerCase()==="no"||v==="0"||v.toLowerCase()==="false"||v.toLowerCase()==="null"||v.toLowerCase()==="n/a";}
+    var designVal = isFalsy(rawDesign) ? "" : rawDesign;
+    // Parse UI/UX — try multiple possible column name variants
+    var rawUiux = (getField(row,"UI/UX")||getField(row,"UI_UX")||getField(row,"UIUX")||getField(row,"ui_ux")||getField(row,"UI UX")||"").trim();
+    var uiuxVal = isFalsy(rawUiux) ? "" : rawUiux;
     return {
       id:       getField(row,"Idea_idx")||"unknown",
       content:  getField(row,"Idea_content")||"",
@@ -486,12 +481,11 @@ function parseRawEcosystemData(rawRows){
   });
 
   // Rebuild filter value lists
-  ALL_STATUSES.length=0; ALL_MODULES.length=0; ALL_DESIGNS.length=0; ALL_UIUXS.length=0;
+  ALL_STATUSES.length=0; ALL_MODULES.length=0; ALL_UIUXS.length=0;
   ALL_STATUSES.push(...[...new Set(RAW.map(function(r){return r.status;}).filter(Boolean))]);
   ALL_MODULES.push( ...[...new Set(RAW.map(function(r){return r.module;}).filter(Boolean))]);
-  // Design and UI/UX: collect unique non-empty values so dropdown shows e.g. ["Yes"] or actual values
-  ALL_DESIGNS.push(...[...new Set(RAW.map(function(r){return r.design;}).filter(Boolean))]);
-  ALL_UIUXS.push(  ...[...new Set(RAW.map(function(r){return r.uiux; }).filter(Boolean))]);
+  // UI/UX: collect unique non-empty values for the filter dropdown
+  ALL_UIUXS.push(...[...new Set(RAW.map(function(r){return r.uiux;}).filter(Boolean))]);
 
   var today=getToday();
   ["iDateTo","aDateTo","tDateTo"].forEach(function(id){var el=document.getElementById(id);if(el&&!el.value)el.value=today;});
@@ -516,11 +510,9 @@ function getF(scope){
     var dOk  = !r.date || ((!f.from||r.date>=f.from)&&(!f.to||r.date<=f.to));
     var sOk  = !f.status.length || f.status.includes(r.status);
     var mOk  = !f.module.length || f.module.includes(r.module);
-    // Design filter: if selections exist, record must have a matching design value
-    var dsnOk = !f.design.length || f.design.includes(r.design);
-    // UI/UX filter: same logic
-    var uiOk  = !f.uiux.length  || f.uiux.includes(r.uiux);
-    return dOk && sOk && mOk && dsnOk && uiOk;
+    // UI/UX filter
+    var uiOk = !f.uiux.length || f.uiux.includes(r.uiux);
+    return dOk && sOk && mOk && uiOk;
   });
 }
 
@@ -571,16 +563,12 @@ function applyLang(){
   document.getElementById("lbAr").classList.toggle("active",lang==="ar");
   document.getElementById("lbEn").classList.toggle("active",lang==="en");
   Object.entries(STRINGS).forEach(function(e){var el=document.getElementById(e[0]);if(el)el.textContent=e[1][lang];});
-  // Update Design/UIUX filter labels
-  ["msID","msAD","msTD"].forEach(function(id){
-    var lbl=document.getElementById(id+"Lbl");
-    if(lbl) lbl.textContent=tr("التصميم","Design");
-  });
+  // Update UI/UX filter labels
   ["msIU","msAU","msTU"].forEach(function(id){
     var lbl=document.getElementById(id+"Lbl");
     if(lbl) lbl.textContent="UI/UX";
   });
-  ["msIS","msIM","msAS","msAM","msTS","msTM","msID","msAD","msTD","msIU","msAU","msTU"].forEach(updateMsLabel);
+  ["msIS","msIM","msAS","msAM","msTS","msTM","msIU","msAU","msTU"].forEach(updateMsLabel);
   var si=document.getElementById("searchInput");
   if(si) si.placeholder="🔍  "+(lang==="ar"?"بحث في الأفكار...":"Search ideas...");
   renderSyncStatus();
@@ -616,9 +604,9 @@ function switchTab(t){
 // MULTI-SELECT — extended for design/uiux
 // ════════════════════════════════════════════════════
 var MS_MAP = {
-  msIS:{scope:"i",key:"status"},  msIM:{scope:"i",key:"module"},  msID:{scope:"i",key:"design"},  msIU:{scope:"i",key:"uiux"},
-  msAS:{scope:"a",key:"status"},  msAM:{scope:"a",key:"module"},  msAD:{scope:"a",key:"design"},  msAU:{scope:"a",key:"uiux"},
-  msTS:{scope:"t",key:"status"},  msTM:{scope:"t",key:"module"},  msTD:{scope:"t",key:"design"},  msTU:{scope:"t",key:"uiux"},
+  msIS:{scope:"i",key:"status"}, msIM:{scope:"i",key:"module"}, msIU:{scope:"i",key:"uiux"},
+  msAS:{scope:"a",key:"status"}, msAM:{scope:"a",key:"module"}, msAU:{scope:"a",key:"uiux"},
+  msTS:{scope:"t",key:"status"}, msTM:{scope:"t",key:"module"}, msTU:{scope:"t",key:"uiux"},
 };
 
 function msToggle(id){
@@ -630,8 +618,7 @@ function msToggle(id){
 function _getOptsForKey(key){
   if(key==="status") return ALL_STATUSES;
   if(key==="module") return ALL_MODULES;
-  if(key==="design") return ALL_DESIGNS;
-  if(key==="uiux")   return ALL_UIUXS;
+  if(key==="uiux") return ALL_UIUXS;
   return [];
 }
 
@@ -674,8 +661,7 @@ function updateMsLabel(id){
   var def;
   if(ref.key==="status") def=tr("الحالة","Status");
   else if(ref.key==="module") def=tr("الوحدة","Module");
-  else if(ref.key==="design") def=tr("التصميم","Design");
-  else if(ref.key==="uiux")   def="UI/UX";
+  else if(ref.key==="uiux") def="UI/UX";
   else def="—";
   if(!sel.length) lblEl.textContent=def;
   else if(sel.length===1) lblEl.textContent=_labelForOpt(ref.key,sel[0]);
@@ -715,9 +701,8 @@ function renderIdeas(){
   document.getElementById("ideasList").innerHTML=slice.map(function(r){
     var sc=S_CFG[r.status]||{ar:r.status,en:r.status,c:"#19A2A5",bg:"#cffafe"};
     var mc2=mc(r.module), vc=r.votes>=50?"#F59E0B":r.votes>=20?"#19A2A5":"#94a3b8";
-    // Build Design and UI/UX chips — only shown when value is non-empty
-    var designChip = r.design ? '<span class="tag tag-design">🎨 '+tr("تصميم","Design")+': '+esc(r.design)+'</span>' : "";
-    var uiuxChip   = r.uiux   ? '<span class="tag tag-uiux">🖥️ UI/UX: '+esc(r.uiux)+'</span>' : "";
+    // UI/UX chip — only shown when value is non-empty
+    var uiuxChip = r.uiux ? '<span class="tag tag-uiux">🖥️ UI/UX: '+esc(r.uiux)+'</span>' : "";
     return '<div class="idea-row" style="border-right:4px solid '+mc2+'" data-href="'+(r.link||"")+'" onclick="openLink(this)">'+
       '<div class="ivote"><div class="ivnum" style="color:'+vc+'">'+r.votes+'</div><div class="ivlbl">🗳️</div></div>'+
       '<div class="ibody">'+
@@ -725,7 +710,7 @@ function renderIdeas(){
         '<div class="itags">'+
           '<span class="tag" style="background:'+sc.bg+';color:'+sc.c+'">'+(lang==="ar"?sc.ar:sc.en)+'</span>'+
           '<span class="tag" style="background:'+mc2+'22;color:'+mc2+';border:1px solid '+mc2+'40">'+mName(r.module)+'</span>'+
-          designChip+uiuxChip+
+          uiuxChip+
           '<span class="tmeta">👤 '+esc(r.author)+'</span>'+
           '<span class="tmeta">📅 '+r.date+'</span>'+
           (r.link&&r.link!=="#"?'<span style="color:#19A2A5;font-size:10px">🔗 '+tr("رابط","Link")+'</span>':"")+
@@ -762,13 +747,13 @@ function updateKPIs(data){
 
 function resetIdeas(){
   var today=getToday();
-  F.i={status:[],module:[],design:[],uiux:[],from:DATE_MIN,to:today};
-  MS_SEL["msIS"]=[]; MS_SEL["msIM"]=[]; MS_SEL["msID"]=[]; MS_SEL["msIU"]=[];
+  F.i={status:[],module:[],uiux:[],from:DATE_MIN,to:today};
+  MS_SEL["msIS"]=[]; MS_SEL["msIM"]=[]; MS_SEL["msIU"]=[];
   document.getElementById("searchInput").value="";
   document.getElementById("iDateFrom").value=DATE_MIN;
   document.getElementById("iDateTo").value=today;
   document.getElementById("sortSel").value="votes";
-  ["msIS","msIM","msID","msIU"].forEach(updateMsLabel);
+  ["msIS","msIM","msIU"].forEach(updateMsLabel);
   ideasPage=1; renderIdeas();
 }
 
@@ -786,11 +771,11 @@ function runAnalysis(){
 }
 function resetAnalysis(){
   var today=getToday();
-  F.a={status:[],module:[],design:[],uiux:[],from:DATE_MIN,to:today};
-  MS_SEL["msAS"]=[]; MS_SEL["msAM"]=[]; MS_SEL["msAD"]=[]; MS_SEL["msAU"]=[];
+  F.a={status:[],module:[],uiux:[],from:DATE_MIN,to:today};
+  MS_SEL["msAS"]=[]; MS_SEL["msAM"]=[]; MS_SEL["msAU"]=[];
   document.getElementById("aDateFrom").value=DATE_MIN;
   document.getElementById("aDateTo").value=today;
-  ["msAS","msAM","msAD","msAU"].forEach(updateMsLabel);
+  ["msAS","msAM","msAU"].forEach(updateMsLabel);
   runAnalysis();
 }
 
@@ -833,8 +818,8 @@ function buildTop20(data){
       var sc=S_CFG[r.status]||{ar:r.status,en:r.status,c:"#19A2A5",bg:"#cffafe"};
       var mc2=mc(r.module), bw=Math.max(6,Math.round((r.votes/maxV)*70));
       var rc=i<3?["#F59E0B","#94a3b8","#cd7c2f"][i]:"var(--sub)";
-      var designCell = r.design ? '<span class="tag tag-design">'+esc(r.design)+'</span>' : '<span style="color:var(--sub);font-size:10px">—</span>';
-      var uiuxCell   = r.uiux   ? '<span class="tag tag-uiux">'+esc(r.uiux)+'</span>'   : '<span style="color:var(--sub);font-size:10px">—</span>';
+      var designCell = r.design ? '<span class="tag tag-design">'+esc(r.design)+'</span>' : "";
+      var uiuxCell   = r.uiux   ? '<span class="tag tag-uiux">'+esc(r.uiux)+'</span>'   : "";
       return '<tr data-href="'+(r.link||"")+'" onclick="openLink(this)">'+
         '<td style="text-align:center;font-weight:700;color:'+rc+'">'+(i<3?medals[i]:"#"+(i+1))+'</td>'+
         '<td style="white-space:normal;word-break:break-word;min-width:220px;max-width:420px">'+esc(r.content)+'</td>'+
@@ -867,15 +852,14 @@ function buildTop5(data){
       '<div class="cust-body" id="cb'+i+'">'+
         c.ideas.slice().sort(function(a,b){return b.votes-a.votes;}).map(function(r){
           var sc=S_CFG[r.status]||{ar:r.status,en:r.status,c:"#19A2A5",bg:"#cffafe"};
-          var designChip = r.design ? '<span class="tag tag-design">🎨 '+esc(r.design)+'</span>' : "";
-          var uiuxChip   = r.uiux   ? '<span class="tag tag-uiux">🖥️ '+esc(r.uiux)+'</span>'   : "";
+          var uiuxChip = r.uiux ? '<span class="tag tag-uiux">🖥️ UI/UX: '+esc(r.uiux)+'</span>' : "";
           return '<div class="cidea-row" data-href="'+(r.link||"")+'" onclick="event.stopPropagation();openLink(this)">'+
             '<b style="color:#F59E0B;min-width:26px;font-size:12px">'+r.votes+'</b>'+
             '<div style="flex:1;min-width:0">'+
               '<div style="font-size:11px;line-height:1.5;word-break:break-word;margin-bottom:4px">'+esc(r.content)+'</div>'+
               '<div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">'+
                 '<span class="tag" style="background:'+sc.bg+';color:'+sc.c+'">'+(lang==="ar"?sc.ar:sc.en)+'</span>'+
-                designChip+uiuxChip+
+                uiuxChip+
                 (r.link&&r.link!=="#"?'<span style="color:#19A2A5;font-size:10px">🔗</span>':"")+
               '</div>'+
             '</div>'+
@@ -914,12 +898,12 @@ function runTrends(){
 }
 function resetTrends(){
   var today=getToday();
-  F.t={status:[],module:[],design:[],uiux:[],from:DATE_MIN,to:today,iv:"monthly"};
-  MS_SEL["msTS"]=[]; MS_SEL["msTM"]=[]; MS_SEL["msTD"]=[]; MS_SEL["msTU"]=[];
+  F.t={status:[],module:[],uiux:[],from:DATE_MIN,to:today,iv:"monthly"};
+  MS_SEL["msTS"]=[]; MS_SEL["msTM"]=[]; MS_SEL["msTU"]=[];
   document.getElementById("tDateFrom").value=DATE_MIN;
   document.getElementById("tDateTo").value=today;
   document.getElementById("ivSel").value="monthly";
-  ["msTS","msTM","msTD","msTU"].forEach(updateMsLabel);
+  ["msTS","msTM","msTU"].forEach(updateMsLabel);
   runTrends();
 }
 
