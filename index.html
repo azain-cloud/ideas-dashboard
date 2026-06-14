@@ -53,7 +53,6 @@ body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:v
 
 /* ── SYNC STATUS ── */
 #syncStatus{font-size:11px;font-weight:400;color:var(--t4);white-space:nowrap;display:flex;align-items:center;gap:4px;transition:color .3s;margin-inline-start:auto;padding:0 6px}
-#syncStatus label{cursor:pointer;text-decoration:underline;color:inherit;font-weight:400}
 .tabs{display:flex;gap:2px;align-items:center;justify-content:space-between}
 .tab-btn{background:transparent;color:var(--sub);border:none;border-bottom:2px solid transparent;padding:7px 18px;cursor:pointer;font-size:13px;font-weight:500;transition:all .2s;white-space:nowrap}
 .tab-btn.active{color:var(--t2);font-weight:700;border-bottom-color:var(--t2)}
@@ -107,6 +106,11 @@ body.light .ivote{background:#f8fafc}
 .itxt{font-size:12px;line-height:1.5;margin-bottom:7px;word-break:break-word}
 .itags{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .tag{font-size:10px;padding:2px 8px;border-radius:16px;font-weight:600;white-space:nowrap}
+/* Design & UI/UX chip colours */
+.tag-design{background:#fde68a;color:#92400e}
+.tag-uiux{background:#ede9fe;color:#5b21b6}
+body.light .tag-design{background:#fef3c7;color:#92400e}
+body.light .tag-uiux{background:#ede9fe;color:#5b21b6}
 .tmeta{font-size:10px;color:var(--sub)}
 
 /* ── PAGINATION ── */
@@ -136,7 +140,7 @@ body.light .ivote{background:#f8fafc}
 .t20 th{padding:8px 10px;text-align:right;font-weight:600;color:var(--sub);border-bottom:1px solid var(--border);background:var(--hbg)}
 body.light .t20 th{background:#f0fafa}
 body.ltr .t20 th{text-align:left}
-.t20 td{padding:7px 10px;border-bottom:1px solid rgba(26,107,110,.15)}
+.t20 td{padding:7px 10px;border-bottom:1px solid rgba(26,107,110,.15);vertical-align:top}
 .t20 tr{cursor:pointer;transition:background .12s}
 .t20 tr:hover td{background:rgba(25,162,165,.07)}
 .barmini{height:5px;background:var(--t2);border-radius:3px;display:inline-block;vertical-align:middle}
@@ -154,7 +158,7 @@ body.light .cust-hdr{background:#f8fffe}
 .carr.open{transform:rotate(180deg)}
 .cust-body{display:none;padding:7px 10px;flex-direction:column;gap:5px}
 .cust-body.open{display:flex}
-.cidea-row{display:flex;align-items:center;gap:7px;padding:6px 9px;border-radius:7px;cursor:pointer;border:1px solid rgba(26,107,110,.18);background:var(--card);transition:background .12s}
+.cidea-row{display:flex;align-items:flex-start;gap:7px;padding:6px 9px;border-radius:7px;cursor:pointer;border:1px solid rgba(26,107,110,.18);background:var(--card);transition:background .12s}
 .cidea-row:hover{background:var(--hbg)}
 body.light .cidea-row:hover{background:#f0fafa}
 
@@ -231,6 +235,8 @@ body.ltr .ms-drop{right:auto;left:0}
 </div>
 
 <div id="content">
+
+<!-- ════════════ IDEAS TAB ════════════ -->
 <div id="panelIdeas" class="panel active">
   <div class="kpi-grid">
     <div class="kpi" style="border-top-color:var(--t2)"><div class="kpi-icon">💡</div><div class="kpi-val" style="color:var(--t2)" id="kpiTotal">...</div><div class="kpi-lbl" id="kpiTotalLbl">إجمالي الأفكار</div></div>
@@ -242,6 +248,10 @@ body.ltr .ms-drop{right:auto;left:0}
     <input type="text" class="finp fsearch" id="searchInput" oninput="ideasPage=1;renderIdeas()">
     <div class="ms" id="msIS"><div class="ms-trg" onclick="msToggle('msIS')"><span id="msISLbl">الحالة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msISDrop"></div></div>
     <div class="ms" id="msIM"><div class="ms-trg" onclick="msToggle('msIM')"><span id="msIMLbl">الوحدة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msIMDrop"></div></div>
+    <!-- NEW: Design Involvement filter -->
+    <div class="ms" id="msID"><div class="ms-trg" onclick="msToggle('msID')"><span id="msIDLbl">Design</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msIDDrop"></div></div>
+    <!-- NEW: UI/UX filter -->
+    <div class="ms" id="msIU"><div class="ms-trg" onclick="msToggle('msIU')"><span id="msIULbl">UI/UX</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msIUDrop"></div></div>
     <select class="fsel" id="sortSel" onchange="ideasPage=1;renderIdeas()"><option value="votes" id="sortOptV">الأعلى تصويتاً</option><option value="date" id="sortOptD">الأحدث</option></select>
     <span class="flbl" id="lblFrom">من:</span><input type="date" class="finp" id="iDateFrom" onchange="ideasPage=1;renderIdeas()">
     <span class="flbl" id="lblTo">إلى:</span><input type="date" class="finp" id="iDateTo" onchange="ideasPage=1;renderIdeas()">
@@ -252,10 +262,15 @@ body.ltr .ms-drop{right:auto;left:0}
   <div class="pag" id="pag"></div>
 </div>
 
+<!-- ════════════ ANALYSIS TAB ════════════ -->
 <div id="panelAnalysis" class="panel">
   <div class="fbar">
     <div class="ms" id="msAS"><div class="ms-trg" onclick="msToggle('msAS')"><span id="msASLbl">الحالة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msASDrop"></div></div>
     <div class="ms" id="msAM"><div class="ms-trg" onclick="msToggle('msAM')"><span id="msAMLbl">الوحدة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msAMDrop"></div></div>
+    <!-- NEW: Design Involvement filter -->
+    <div class="ms" id="msAD"><div class="ms-trg" onclick="msToggle('msAD')"><span id="msADLbl">Design</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msADDrop"></div></div>
+    <!-- NEW: UI/UX filter -->
+    <div class="ms" id="msAU"><div class="ms-trg" onclick="msToggle('msAU')"><span id="msAULbl">UI/UX</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msAUDrop"></div></div>
     <span class="flbl" id="aLblFrom">من:</span><input type="date" class="finp" id="aDateFrom" onchange="runAnalysis()">
     <span class="flbl" id="aLblTo">إلى:</span><input type="date" class="finp" id="aDateTo" onchange="runAnalysis()">
     <button class="freset" id="aReset" onclick="resetAnalysis()">إعادة ضبط</button>
@@ -270,10 +285,15 @@ body.ltr .ms-drop{right:auto;left:0}
   <div class="sc"><div class="sc-title" id="aTitleLR">📦 نسبة الإطلاق حسب الوحدة</div><div class="lr-grid" id="lrGrid"></div></div>
 </div>
 
+<!-- ════════════ TRENDS TAB ════════════ -->
 <div id="panelTrends" class="panel">
   <div class="fbar">
     <div class="ms" id="msTS"><div class="ms-trg" onclick="msToggle('msTS')"><span id="msTSLbl">الحالة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msTSDrop"></div></div>
     <div class="ms" id="msTM"><div class="ms-trg" onclick="msToggle('msTM')"><span id="msTMLbl">الوحدة</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msTMDrop"></div></div>
+    <!-- NEW: Design Involvement filter -->
+    <div class="ms" id="msTD"><div class="ms-trg" onclick="msToggle('msTD')"><span id="msTDLbl">Design</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msTDDrop"></div></div>
+    <!-- NEW: UI/UX filter -->
+    <div class="ms" id="msTU"><div class="ms-trg" onclick="msToggle('msTU')"><span id="msTULbl">UI/UX</span><span class="ms-arr">▼</span></div><div class="ms-drop" id="msTUDrop"></div></div>
     <span class="flbl" id="tLblFrom">من:</span><input type="date" class="finp" id="tDateFrom" onchange="runTrends()">
     <span class="flbl" id="tLblTo">إلى:</span><input type="date" class="finp" id="tDateTo" onchange="runTrends()">
     <span class="flbl" id="tLblIv">الفترة:</span>
@@ -284,7 +304,8 @@ body.ltr .ms-drop{right:auto;left:0}
   <div class="sc"><div class="sc-title" id="tTitle2">📊 اتجاه الأفكار حسب الوحدة</div><div style="position:relative;width:100%;height:260px"><canvas id="cvModLine"></canvas></div></div>
   <div class="sc"><div class="sc-title" id="tTitle3">📊 اتجاه الأفكار حسب الحالة</div><div style="position:relative;width:100%;height:260px"><canvas id="cvStLine"></canvas></div></div>
 </div>
-</div>
+
+</div><!-- /content -->
 
 <script>
 // ════════════════════════════════════════════════════
@@ -352,14 +373,21 @@ var S_CFG = {
 };
 var M_CLR = {"المبيعات والعملاء":"#19A2A5","المنتجات والمخزون":"#1BBFA0","التقارير":"#F59E0B","المحاسبة":"#8B5CF6","المشتريات والموردين":"#EF4444","الربط مع التطبيقات":"#2563EB","إعدادات الحساب":"#EC4899","لوحة التحكم":"#F97316","المخزون":"#17D4B8"};
 var M_EN  = {"المبيعات والعملاء":"Sales & Customers","المنتجات والمخزون":"Products & Inventory","التقارير":"Reports","المحاسبة":"Accounting","المشتريات والموردين":"Purchasing","الربط مع التطبيقات":"Integrations","إعدادات الحساب":"Account Settings","لوحة التحكم":"Dashboard","المخزون":"Inventory"};
-var ALL_STATUSES=[], ALL_MODULES=[];
+
+// All unique values for each filterable field
+var ALL_STATUSES=[], ALL_MODULES=[], ALL_DESIGNS=[], ALL_UIUXS=[];
 
 // ════════════════════════════════════════════════════
 // STATE
 // ════════════════════════════════════════════════════
 var lang="en", dark=false, curTab="ideas", ideasPage=1, PER=15;
 function getToday(){return new Date().toISOString().split("T")[0];}
-var F={i:{status:[],module:[],from:DATE_MIN,to:getToday()},a:{status:[],module:[],from:DATE_MIN,to:getToday()},t:{status:[],module:[],from:DATE_MIN,to:getToday(),iv:"monthly"}};
+// F now includes design and uiux filter arrays for all scopes
+var F={
+  i:{status:[],module:[],design:[],uiux:[],from:DATE_MIN,to:getToday()},
+  a:{status:[],module:[],design:[],uiux:[],from:DATE_MIN,to:getToday()},
+  t:{status:[],module:[],design:[],uiux:[],from:DATE_MIN,to:getToday(),iv:"monthly"}
+};
 var MS_SEL={}, chSt=null, chMod=null, chTrend=null, chML=null, chSL=null;
 
 // ════════════════════════════════════════════════════
@@ -385,10 +413,9 @@ function renderSyncStatus(){
 }
 
 // ════════════════════════════════════════════════════
-// LIVE SYNC — JSONP (bypasses CORS entirely)
+// LIVE SYNC — JSONP
 // ════════════════════════════════════════════════════
 function initDashboardLiveSync() {
-  // Fallback CSV picker
   var fallbackInput = document.createElement("input");
   fallbackInput.type="file"; fallbackInput.id="fallbackCsvPicker";
   fallbackInput.accept=".csv"; fallbackInput.style.display="none";
@@ -401,21 +428,15 @@ function initDashboardLiveSync() {
   setSyncStatus("fetching");
   var timeoutId = setTimeout(function(){setSyncStatus("timeout");}, 12000);
 
-  // JSONP — injects a <script> tag, no CORS restrictions
   var cbName = "dashboardCb_" + Date.now();
   var token  = sessionStorage.getItem("gsi_credential") || "";
 
   window[cbName] = function(json) {
     clearTimeout(timeoutId);
-    // Clean up
     delete window[cbName];
     var s = document.getElementById("_jsonpScript");
     if (s) s.parentNode.removeChild(s);
-    // Handle response
-    if (!json || json.error) {
-      console.error("Script error:", json ? json.error : "no response");
-      setSyncStatus("error"); return;
-    }
+    if (!json || json.error) { console.error("Script error:", json ? json.error : "no response"); setSyncStatus("error"); return; }
     var now = new Date();
     var ts  = "("+String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0")+")";
     setSyncStatus("success", ts);
@@ -425,11 +446,7 @@ function initDashboardLiveSync() {
   var script = document.createElement("script");
   script.id  = "_jsonpScript";
   script.src = APPS_SCRIPT_URL + "?callback=" + cbName + "&token=" + encodeURIComponent(token);
-  script.onerror = function() {
-    clearTimeout(timeoutId);
-    delete window[cbName];
-    setSyncStatus("error");
-  };
+  script.onerror = function() { clearTimeout(timeoutId); delete window[cbName]; setSyncStatus("error"); };
   document.body.appendChild(script);
 }
 
@@ -442,116 +459,511 @@ function getField(obj,name){
   for(var k of Object.keys(obj)){if(k.toLowerCase().replace(/[\s_]/g,"")=== norm) return String(obj[k]);}
   return "";
 }
+
 function parseRawEcosystemData(rawRows){
-  RAW=rawRows.map(function(row){
-    var dateStr=getField(row,"Idea_creation_date");
-    var cleanDate=dateStr?(dateStr.indexOf("T")!==-1?dateStr.split("T")[0]:dateStr.trim()):"";
-    return{id:getField(row,"Idea_idx")||"unknown",content:getField(row,"Idea_content")||"",votes:parseInt(getField(row,"Vote_count"),10)||0,module:getField(row,"Module")||"General",status:getField(row,"Status")||"Idea Added",author:getField(row,"Author_name")||"Anonymous",authorIdx:getField(row,"Author_idx")||"",date:cleanDate,link:getField(row,"Idea_link")||"#"};
+  RAW = rawRows.map(function(row){
+    var dateStr = getField(row,"Idea_creation_date");
+    var cleanDate = dateStr ? (dateStr.indexOf("T")!==-1 ? dateStr.split("T")[0] : dateStr.trim()) : "";
+    // Parse Design_involvement — expected values: "Yes"/"No"/"" or "TRUE"/"FALSE" or similar
+    var rawDesign = getField(row,"Design_involvement").trim();
+    var designVal = (rawDesign===""||rawDesign.toLowerCase()==="no"||rawDesign==="0"||rawDesign.toLowerCase()==="false") ? "" : rawDesign;
+    // Parse UI_UX — same approach
+    var rawUiux = getField(row,"UI_UX").trim();
+    var uiuxVal = (rawUiux===""||rawUiux.toLowerCase()==="no"||rawUiux==="0"||rawUiux.toLowerCase()==="false") ? "" : rawUiux;
+    return {
+      id:       getField(row,"Idea_idx")||"unknown",
+      content:  getField(row,"Idea_content")||"",
+      votes:    parseInt(getField(row,"Vote_count"),10)||0,
+      module:   getField(row,"Module")||"General",
+      status:   getField(row,"Status")||"Idea Added",
+      author:   getField(row,"Author_name")||"Anonymous",
+      authorIdx:getField(row,"Author_idx")||"",
+      date:     cleanDate,
+      link:     getField(row,"Idea_link")||"#",
+      design:   designVal,   // "" = not involved, any truthy string = involved
+      uiux:     uiuxVal      // "" = not involved, any truthy string = involved
+    };
   });
-  ALL_STATUSES.length=0;ALL_MODULES.length=0;
+
+  // Rebuild filter value lists
+  ALL_STATUSES.length=0; ALL_MODULES.length=0; ALL_DESIGNS.length=0; ALL_UIUXS.length=0;
   ALL_STATUSES.push(...[...new Set(RAW.map(function(r){return r.status;}).filter(Boolean))]);
   ALL_MODULES.push( ...[...new Set(RAW.map(function(r){return r.module;}).filter(Boolean))]);
+  // Design and UI/UX: collect unique non-empty values so dropdown shows e.g. ["Yes"] or actual values
+  ALL_DESIGNS.push(...[...new Set(RAW.map(function(r){return r.design;}).filter(Boolean))]);
+  ALL_UIUXS.push(  ...[...new Set(RAW.map(function(r){return r.uiux; }).filter(Boolean))]);
+
   var today=getToday();
   ["iDateTo","aDateTo","tDateTo"].forEach(function(id){var el=document.getElementById(id);if(el&&!el.value)el.value=today;});
   ["iDateFrom","aDateFrom","tDateFrom"].forEach(function(id){var el=document.getElementById(id);if(el&&!el.value)el.value=DATE_MIN;});
-  applyLang(); renderIdeas();
+  applyLang();
+  renderIdeas();
 }
 
 // ════════════════════════════════════════════════════
 // HELPERS
 // ════════════════════════════════════════════════════
-var tr=function(ar,en){return lang==="ar"?ar:en;};
-var mName=function(m){return lang==="en"?(M_EN[m]||m):m;};
-var sLabel=function(s){var c=S_CFG[s];return c?(lang==="ar"?c.ar:c.en):s;};
-var mc=function(m){return M_CLR[m]||"#19A2A5";};
-var esc=function(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");};
+var tr     = function(ar,en){return lang==="ar"?ar:en;};
+var mName  = function(m){return lang==="en"?(M_EN[m]||m):m;};
+var sLabel = function(s){var c=S_CFG[s];return c?(lang==="ar"?c.ar:c.en):s;};
+var mc     = function(m){return M_CLR[m]||"#19A2A5";};
+var esc    = function(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");};
 function isLaunched(s){return s.indexOf("تم الإطلاق")!==-1||s.toLowerCase().indexOf("launched")!==-1;}
+
 function getF(scope){
-  var f=scope==="i"?F.i:scope==="a"?F.a:F.t;
+  var f = scope==="i" ? F.i : scope==="a" ? F.a : F.t;
   return RAW.filter(function(r){
-    var dOk=!r.date||((!f.from||r.date>=f.from)&&(!f.to||r.date<=f.to));
-    return dOk&&(!f.status.length||f.status.includes(r.status))&&(!f.module.length||f.module.includes(r.module));
+    var dOk  = !r.date || ((!f.from||r.date>=f.from)&&(!f.to||r.date<=f.to));
+    var sOk  = !f.status.length || f.status.includes(r.status);
+    var mOk  = !f.module.length || f.module.includes(r.module);
+    // Design filter: if selections exist, record must have a matching design value
+    var dsnOk = !f.design.length || f.design.includes(r.design);
+    // UI/UX filter: same logic
+    var uiOk  = !f.uiux.length  || f.uiux.includes(r.uiux);
+    return dOk && sOk && mOk && dsnOk && uiOk;
   });
 }
+
 function getKey(d,iv){var dt=new Date(d);if(isNaN(dt))return"";if(iv==="monthly")return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0");if(iv==="quarterly")return dt.getFullYear()+"-Q"+Math.ceil((dt.getMonth()+1)/3);return String(dt.getFullYear());}
 function fmtKey(k,iv){var AR=["","يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"],EN=["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];if(!k)return"";if(iv==="monthly"){var p=k.split("-");return(lang==="ar"?AR[+p[1]]:EN[+p[1]])+"'"+String(p[0]).slice(2);}if(iv==="quarterly"){var p=k.split("-");return p[1]+"'"+String(p[0]).slice(2);}return k;}
 function ccol(){return{grid:dark?"rgba(26,107,110,.18)":"rgba(0,0,0,.07)",text:dark?"#94a3b8":"#64748b",bg:dark?"#102C36":"#fff"};}
-function destroyAll(){[chSt,chMod,chTrend,chML,chSL].forEach(function(c){if(c){try{c.destroy();}catch(e){}}});chSt=chMod=chTrend=chML=chSL=null;["cvStatus","cvModule","cvTrend","cvModLine","cvStLine"].forEach(function(id){var old=document.getElementById(id);if(!old)return;var fresh=document.createElement("canvas");fresh.id=id;old.parentNode.replaceChild(fresh,old);});}
+function destroyAll(){
+  [chSt,chMod,chTrend,chML,chSL].forEach(function(c){if(c){try{c.destroy();}catch(e){}}});
+  chSt=chMod=chTrend=chML=chSL=null;
+  ["cvStatus","cvModule","cvTrend","cvModLine","cvStLine"].forEach(function(id){
+    var old=document.getElementById(id); if(!old)return;
+    var fresh=document.createElement("canvas"); fresh.id=id;
+    old.parentNode.replaceChild(fresh,old);
+  });
+}
 
 // ════════════════════════════════════════════════════
 // LANG & THEME
 // ════════════════════════════════════════════════════
 var STRINGS={
-  brandTitle:{ar:"لوحة تحكم الأفكار",en:"Ideas Dashboard"},brandSub:{ar:"آخر تحديث: مايو ٢٠٢٦",en:"Latest Update"},
+  brandTitle:{ar:"لوحة تحكم الأفكار",en:"Ideas Dashboard"},
+  brandSub:{ar:"آخر تحديث",en:"Latest Update"},
   tabIdeas:{ar:"💡 الأفكار",en:"💡 Ideas"},tabAnalysis:{ar:"📊 التحليل",en:"📊 Analysis"},tabTrends:{ar:"📈 الاتجاهات",en:"📈 Trends"},
-  kpiTotalLbl:{ar:"إجمالي الأفكار",en:"Total Ideas"},kpiLaunchedLbl:{ar:"الأفكار المُطلقة",en:"Launched Ideas"},kpiVotesLbl:{ar:"إجمالي التصويتات",en:"Total Votes"},kpiPendingLbl:{ar:"أفكار قيد المتابعة",en:"Pending Ideas"},kpiPendingSub:{ar:"مضافة ولم يُطلق بعد",en:"Added, not launched yet"},
+  kpiTotalLbl:{ar:"إجمالي الأفكار",en:"Total Ideas"},kpiLaunchedLbl:{ar:"الأفكار المُطلقة",en:"Launched Ideas"},
+  kpiVotesLbl:{ar:"إجمالي التصويتات",en:"Total Votes"},kpiPendingLbl:{ar:"أفكار قيد المتابعة",en:"Pending Ideas"},
+  kpiPendingSub:{ar:"مضافة ولم يُطلق بعد",en:"Added, not launched yet"},
   sortOptV:{ar:"الأعلى تصويتاً",en:"Most Voted"},sortOptD:{ar:"الأحدث",en:"Newest"},
-  lblFrom:{ar:"من:",en:"From:"},lblTo:{ar:"إلى:",en:"To:"},iReset:{ar:"إعادة ضبط",en:"Reset"},aReset:{ar:"إعادة ضبط",en:"Reset"},tReset:{ar:"إعادة ضبط",en:"Reset"},
-  aLblFrom:{ar:"من:",en:"From:"},aLblTo:{ar:"إلى:",en:"To:"},tLblFrom:{ar:"من:",en:"From:"},tLblTo:{ar:"إلى:",en:"To:"},tLblIv:{ar:"الفترة:",en:"Interval:"},
+  lblFrom:{ar:"من:",en:"From:"},lblTo:{ar:"إلى:",en:"To:"},
+  iReset:{ar:"إعادة ضبط",en:"Reset"},aReset:{ar:"إعادة ضبط",en:"Reset"},tReset:{ar:"إعادة ضبط",en:"Reset"},
+  aLblFrom:{ar:"من:",en:"From:"},aLblTo:{ar:"إلى:",en:"To:"},
+  tLblFrom:{ar:"من:",en:"From:"},tLblTo:{ar:"إلى:",en:"To:"},tLblIv:{ar:"الفترة:",en:"Interval:"},
   ivOptM:{ar:"شهري",en:"Monthly"},ivOptQ:{ar:"ربع سنوي",en:"Quarterly"},ivOptY:{ar:"سنوي",en:"Yearly"},
   aTitleStatus:{ar:"الأفكار حسب الحالة",en:"Ideas by Status"},aSubStatus:{ar:"اضغط على الحالة للتصفية 👆",en:"Click status to filter 👆"},
   aTitleModule:{ar:"الأفكار حسب الوحدة",en:"Ideas by Module"},aSubModule:{ar:"اضغط على الوحدة للتصفية 👆",en:"Click module to filter 👆"},
-  aTitle20:{ar:"🏆 أعلى 20 فكرة بالتصويتات",en:"🏆 Top 20 Ideas by Votes"},aSub20:{ar:"اضغط على الفكرة للذهاب في Frill 👆",en:"Click idea to open in Frill 👆"},
-  aTitle5:{ar:"👥 أبرز 5 عملاء بالأفكار",en:"👥 Top 5 Customers by Ideas"},aTitleLR:{ar:"📦 نسبة الإطلاق حسب الوحدة",en:"📦 Launch Rate by Module"},
-  tTitle1:{ar:"🔄 اتجاه الأفكار عبر الزمن",en:"🔄 Ideas Trend Over Time"},tTitle2:{ar:"📊 اتجاه الأفكار حسب الوحدة",en:"📊 Trend by Module"},tTitle3:{ar:"📊 اتجاه الأفكار حسب الحالة",en:"📊 Trend by Status"},
+  aTitle20:{ar:"🏆 أعلى 20 فكرة بالتصويتات",en:"🏆 Top 20 Ideas by Votes"},
+  aSub20:{ar:"اضغط على الفكرة للذهاب في Frill 👆",en:"Click idea to open in Frill 👆"},
+  aTitle5:{ar:"👥 أبرز 5 عملاء بالأفكار",en:"👥 Top 5 Customers by Ideas"},
+  aTitleLR:{ar:"📦 نسبة الإطلاق حسب الوحدة",en:"📦 Launch Rate by Module"},
+  tTitle1:{ar:"🔄 اتجاه الأفكار عبر الزمن",en:"🔄 Ideas Trend Over Time"},
+  tTitle2:{ar:"📊 اتجاه الأفكار حسب الوحدة",en:"📊 Trend by Module"},
+  tTitle3:{ar:"📊 اتجاه الأفكار حسب الحالة",en:"📊 Trend by Status"},
 };
+
 function applyLang(){
-  document.documentElement.lang=lang;document.body.dir=lang==="ar"?"rtl":"ltr";document.body.classList.toggle("ltr",lang!=="ar");
-  document.getElementById("lbAr").classList.toggle("active",lang==="ar");document.getElementById("lbEn").classList.toggle("active",lang==="en");
+  document.documentElement.lang=lang;
+  document.body.dir=lang==="ar"?"rtl":"ltr";
+  document.body.classList.toggle("ltr",lang!=="ar");
+  document.getElementById("lbAr").classList.toggle("active",lang==="ar");
+  document.getElementById("lbEn").classList.toggle("active",lang==="en");
   Object.entries(STRINGS).forEach(function(e){var el=document.getElementById(e[0]);if(el)el.textContent=e[1][lang];});
-  ["msIS","msIM","msAS","msAM","msTS","msTM"].forEach(updateMsLabel);
-  var si=document.getElementById("searchInput");if(si)si.placeholder="🔍  "+(lang==="ar"?"بحث في الأفكار...":"Search ideas...");
+  // Update Design/UIUX filter labels
+  ["msID","msAD","msTD"].forEach(function(id){
+    var lbl=document.getElementById(id+"Lbl");
+    if(lbl) lbl.textContent=tr("التصميم","Design");
+  });
+  ["msIU","msAU","msTU"].forEach(function(id){
+    var lbl=document.getElementById(id+"Lbl");
+    if(lbl) lbl.textContent="UI/UX";
+  });
+  ["msIS","msIM","msAS","msAM","msTS","msTM","msID","msAD","msTD","msIU","msAU","msTU"].forEach(updateMsLabel);
+  var si=document.getElementById("searchInput");
+  if(si) si.placeholder="🔍  "+(lang==="ar"?"بحث في الأفكار...":"Search ideas...");
   renderSyncStatus();
 }
+
 var LOGO_AR=document.getElementById("brandLogo").outerHTML;
 var LOGO_EN='<svg id="brandLogo" xmlns="http://www.w3.org/2000/svg" width="120" height="28" viewBox="0 0 236.63 55.61"><g><path d="M32.32,16.94c-.07.24-.15.47-.24.7l-3.52,10.4-3.79,11.2-2.74,8.11h0s-.02.09-.04.12c-.34.91-1.21,1.55-2.23,1.55s-1.97-.71-2.27-1.68h0l-2.39-8.34-6.05-21.11-2.35-8.19c-.02-.07-.05-.14-.06-.21h0c-.04-.18-.06-.36-.06-.55,0-1.31,1.07-2.37,2.37-2.37l2.81-.22,5.62-.43,5.75-.44h0c.2,0,.4-.01.6-.01,4.94,0,8.95,4.02,8.95,8.95,0,.87-.12,1.71-.36,2.5h0ZM33.94,4.23C31.27,1.55,27.73.06,23.96,0c-.08,0-.15,0-.23,0h-14.78s-.04,0-.06,0C3.98.03,0,4.03,0,8.95c0,.82.11,1.62.32,2.37,0,.02,0,.03.01.05,0,.02.01.05.02.07l10.78,37.59h0c1.04,3.79,4.52,6.58,8.63,6.58,2.47,0,4.71-1,6.33-2.63,1.08-1.08,1.89-2.44,2.31-3.95h0l9.13-30.32.05-.16s0-.01,0-.02c.38-1.31.58-2.69.58-4.09,0-3.85-1.5-7.48-4.23-10.21" fill="#00a4a6"/><path d="M67.51,10.35c-.87-.02-2.23-.03-4.08-.03-4.71,0-8.19,1.31-10.33,3.91-2.18,2.64-3.3,6.83-3.35,12.45l-.07,18.94c0,.12.06.2.1.24.04.04.12.1.24.1h5.41c.19,0,.34-.15.34-.34v-18.95c0-3.86.54-6.49,1.64-8.04h0c1.14-1.61,3.17-2.43,6.01-2.43l4.06.06c.14,0,.21-.06.24-.1.04-.04.1-.12.1-.24v-5.23c0-.19-.14-.33-.33-.34Z" fill="#00a4a6"/><path d="M95.16,12.02c-2.33-1.47-5.15-2.22-8.38-2.22-3.05,0-5.88.81-8.42,2.41-2.55,1.61-4.6,3.81-6.08,6.54-1.49,2.74-2.24,5.76-2.24,8.98s.75,6.48,2.25,9.25c1.49,2.76,3.57,4.98,6.18,6.61,2.64,1.57,5.63,2.37,8.87,2.37,3.42,0,6.55-.9,9.32-2.67,2.49-1.59,4.46-3.76,5.86-6.45.09-.17.03-.37-.13-.47l-4.1-2.4c-.16-.09-.36-.04-.46.12-2.4,3.97-5.86,5.98-10.29,5.98-2.21,0-4.22-.5-5.95-1.49-1.74-.99-3.13-2.42-4.12-4.25-.51-1.06-.87-2.08-1.1-3.06-.13-.55,0-1.13.35-1.57.35-.44.88-.69,1.44-.69h24.72c.19,0,.33-.14.34-.33,0-.33.01-.69.01-1.11,0-3.42-.75-6.51-2.24-9.2-1.49-2.69-3.46-4.83-5.84-6.36ZM96.56,22.7c-.34.55-1.29.88-1.93.88h-15.47c-.65,0-1.57-.33-1.9-.89-.34-.56-.03-1.25.29-1.84.64-1.21,1.61-2.28,2.87-3.19,1.84-1.32,4-1.99,6.43-1.99,2.23,0,4.34.64,6.29,1.89,1.4.9,2.46,2.02,3.13,3.33.29.58.63,1.25.29,1.8Z" fill="#00a4a6"/><path d="M145.19,32.47c-.21.52-.71.85-1.25.83-.56-.01-1.03-.36-1.22-.89l-7.29-20.88c-.36-1.04-1.34-1.73-2.44-1.73h-.42c-1.1,0-2.08.7-2.44,1.74l-7.23,20.87c-.18.53-.66.87-1.21.89-.54.03-1.05-.31-1.26-.83l-9.14-22.67h-6.86l14.85,34.6c.41.95,1.34,1.56,2.37,1.56h.38c1.1,0,2.08-.7,2.44-1.74l7.05-20.38c.19-.54.68-.89,1.25-.89s1.06.35,1.25.89l7.05,20.38c.36,1.04,1.34,1.74,2.44,1.74h.44c1.04,0,1.97-.62,2.37-1.57l14.79-34.59h-6.86l-9.07,22.67Z" fill="#00a4a6"/><path d="M196.98,9.8h-5.28c-.19,0-.34.15-.34.34v.89c0,.7-.39,1.34-1.02,1.65-.62.31-1.34.25-1.89-.16-.95-.71-2.01-1.3-3.14-1.77-1.8-.74-3.72-1.11-5.71-1.11-2.91,0-5.61.8-8.02,2.36-2.43,1.58-4.38,3.79-5.8,6.57h0c-1.38,2.69-2.08,5.69-2.08,8.92,0,3.49.7,6.67,2.08,9.46,1.37,2.78,3.32,4.98,5.79,6.55,2.39,1.63,5.08,2.44,8.03,2.44,2.02,0,3.94-.38,5.7-1.14,1.1-.48,2.15-1.09,3.11-1.83.33-.26.73-.39,1.13-.39.28,0,.56.06.82.19.62.31,1.01.93,1.01,1.63v1.19c0,.19.15.34.34.34h5.28c.19,0,.34-.15.34-.34V10.14c0-.19-.15-.34-.34-.34ZM190.11,33.89c-.89,1.85-2.18,3.33-3.82,4.41-1.6,1.08-3.47,1.63-5.57,1.63s-3.96-.52-5.56-1.55c-1.59-1.02-2.88-2.52-3.82-4.43-.98-1.85-1.48-4-1.48-6.37,0-2.16.45-4.18,1.33-6.01.9-1.86,2.21-3.32,3.91-4.35,1.64-1.02,3.53-1.54,5.61-1.54s3.96.52,5.56,1.55c1.6,1.02,2.88,2.49,3.82,4.36.89,1.75,1.33,3.77,1.33,5.99,0,2.36-.45,4.49-1.33,6.31Z" fill="#00a4a6"/><path d="M236.29,9.8h-5.28c-.19,0-.34.15-.34.34v.89c0,.7-.39,1.34-1.02,1.65-.62.31-1.34.25-1.89-.16-.96-.71-2.01-1.31-3.14-1.77-1.8-.74-3.73-1.11-5.71-1.11-2.91,0-5.6.8-8.02,2.36-2.43,1.58-4.38,3.79-5.8,6.57h0c-1.38,2.69-2.08,5.69-2.08,8.92,0,3.49.7,6.67,2.08,9.46,1.37,2.78,3.32,4.98,5.79,6.55,2.39,1.63,5.08,2.44,8.03,2.44,2.02,0,3.94-.38,5.7-1.14,1.1-.48,2.15-1.09,3.11-1.83.33-.26.73-.39,1.13-.39.28,0,.56.06.82.19.62.31,1.01.93,1.01,1.63v1.19c0,.19.15.34.34.34h5.28c.19,0,.34-.15.34-.34V10.14c0-.19-.15-.34-.34-.34ZM229.41,33.89c-.89,1.85-2.18,3.33-3.82,4.41-1.6,1.08-3.47,1.63-5.57,1.63s-3.96-.52-5.56-1.55c-1.59-1.02-2.88-2.52-3.82-4.43-.98-1.85-1.48-4-1.48-6.37,0-2.16.45-4.19,1.33-6.01.9-1.86,2.21-3.32,3.91-4.35,1.64-1.02,3.53-1.54,5.61-1.54s3.96.52,5.56,1.55c1.59,1.02,2.88,2.49,3.82,4.36.89,1.75,1.33,3.77,1.33,5.99,0,2.36-.45,4.49-1.33,6.31Z" fill="#00a4a6"/></g></svg>';
 
-function setLang(l){lang=l;var logoEl=document.getElementById("brandLogo");if(logoEl)logoEl.outerHTML=(l==="en"?LOGO_EN:LOGO_AR);applyLang();if(RAW.length>0){renderIdeas();if(curTab==="analysis")runAnalysis();if(curTab==="trends")runTrends();}}
-function toggleTheme(){dark=!dark;document.body.classList.toggle("light",!dark);document.getElementById("themeBtn").textContent=dark?"☀️":"🌙";destroyAll();if(RAW.length>0){if(curTab==="analysis")runAnalysis();if(curTab==="trends")runTrends();}}
+function setLang(l){
+  lang=l;
+  var logoEl=document.getElementById("brandLogo");
+  if(logoEl) logoEl.outerHTML=(l==="en"?LOGO_EN:LOGO_AR);
+  applyLang();
+  if(RAW.length>0){renderIdeas();if(curTab==="analysis")runAnalysis();if(curTab==="trends")runTrends();}
+}
+function toggleTheme(){
+  dark=!dark;
+  document.body.classList.toggle("light",!dark);
+  document.getElementById("themeBtn").textContent=dark?"☀️":"🌙";
+  destroyAll();
+  if(RAW.length>0){if(curTab==="analysis")runAnalysis();if(curTab==="trends")runTrends();}
+}
+function switchTab(t){
+  curTab=t;
+  document.querySelectorAll(".panel").forEach(function(p){p.classList.remove("active");});
+  document.querySelectorAll(".tab-btn").forEach(function(b){b.classList.remove("active");});
+  document.getElementById("panel"+t.charAt(0).toUpperCase()+t.slice(1)).classList.add("active");
+  document.getElementById("tab"+t.charAt(0).toUpperCase()+t.slice(1)).classList.add("active");
+  if(RAW.length>0){if(t==="analysis")runAnalysis();if(t==="trends")runTrends();}
+}
 
-function switchTab(t){curTab=t;document.querySelectorAll(".panel").forEach(function(p){p.classList.remove("active");});document.querySelectorAll(".tab-btn").forEach(function(b){b.classList.remove("active");});document.getElementById("panel"+t.charAt(0).toUpperCase()+t.slice(1)).classList.add("active");document.getElementById("tab"+t.charAt(0).toUpperCase()+t.slice(1)).classList.add("active");if(RAW.length>0){if(t==="analysis")runAnalysis();if(t==="trends")runTrends();}}
+// ════════════════════════════════════════════════════
+// MULTI-SELECT — extended for design/uiux
+// ════════════════════════════════════════════════════
+var MS_MAP = {
+  msIS:{scope:"i",key:"status"},  msIM:{scope:"i",key:"module"},  msID:{scope:"i",key:"design"},  msIU:{scope:"i",key:"uiux"},
+  msAS:{scope:"a",key:"status"},  msAM:{scope:"a",key:"module"},  msAD:{scope:"a",key:"design"},  msAU:{scope:"a",key:"uiux"},
+  msTS:{scope:"t",key:"status"},  msTM:{scope:"t",key:"module"},  msTD:{scope:"t",key:"design"},  msTU:{scope:"t",key:"uiux"},
+};
 
-var MS_MAP={msIS:{scope:"i",key:"status"},msIM:{scope:"i",key:"module"},msAS:{scope:"a",key:"status"},msAM:{scope:"a",key:"module"},msTS:{scope:"t",key:"status"},msTM:{scope:"t",key:"module"}};
-function msToggle(id){var dropEl=document.getElementById(id+"Drop"),isOpen=dropEl.classList.contains("open");document.querySelectorAll(".ms-drop").forEach(function(d){d.classList.remove("open");});if(!isOpen){dropEl.classList.add("open");buildMsDrop(id);}}
-function buildMsDrop(id){var ref=MS_MAP[id],sel=MS_SEL[id]||[],opts=ref.key==="status"?ALL_STATUSES:ALL_MODULES,drop=document.getElementById(id+"Drop");drop.innerHTML="";var allDiv=document.createElement("div");allDiv.className="ms-all"+(sel.length===0?" sel":"");allDiv.textContent=tr("الكل","All");allDiv.onclick=function(e){e.stopPropagation();MS_SEL[id]=[];F[ref.scope][ref.key]=[];updateMsLabel(id);drop.classList.remove("open");triggerScope(ref.scope);};drop.appendChild(allDiv);opts.forEach(function(opt){var isSel=sel.includes(opt),div=document.createElement("div");div.className="ms-opt"+(isSel?" sel":"");div.innerHTML='<span class="ms-chk">'+(isSel?"✓":"")+'</span><span>'+(ref.key==="module"?mName(opt):(sLabel(opt)||opt))+'</span>';div.onclick=function(e){e.stopPropagation();var arr=MS_SEL[id]||(MS_SEL[id]=[]),idx=arr.indexOf(opt);if(idx>=0)arr.splice(idx,1);else arr.push(opt);F[ref.scope][ref.key]=arr.slice();buildMsDrop(id);updateMsLabel(id);triggerScope(ref.scope);};drop.appendChild(div);});}
-function updateMsLabel(id){var ref=MS_MAP[id];if(!ref)return;var sel=MS_SEL[id]||[],lblEl=document.getElementById(id+"Lbl");if(!lblEl)return;var def=ref.key==="status"?tr("الحالة","Status"):tr("الوحدة","Module");if(!sel.length)lblEl.textContent=def;else if(sel.length===1)lblEl.textContent=ref.key==="module"?mName(sel[0]):(sLabel(sel[0])||sel[0]);else lblEl.textContent=sel.length+" "+tr("محدد","selected");}
-function triggerScope(scope){if(scope==="i"){ideasPage=1;renderIdeas();}else if(scope==="a")runAnalysis();else runTrends();}
-document.addEventListener("click",function(e){if(!e.target.closest(".ms"))document.querySelectorAll(".ms-drop").forEach(function(d){d.classList.remove("open");});});
+function msToggle(id){
+  var dropEl=document.getElementById(id+"Drop"), isOpen=dropEl.classList.contains("open");
+  document.querySelectorAll(".ms-drop").forEach(function(d){d.classList.remove("open");});
+  if(!isOpen){dropEl.classList.add("open");buildMsDrop(id);}
+}
+
+function _getOptsForKey(key){
+  if(key==="status") return ALL_STATUSES;
+  if(key==="module") return ALL_MODULES;
+  if(key==="design") return ALL_DESIGNS;
+  if(key==="uiux")   return ALL_UIUXS;
+  return [];
+}
+
+function _labelForOpt(key,opt){
+  if(key==="module") return mName(opt);
+  if(key==="status") return sLabel(opt)||opt;
+  // design and uiux: show the raw value (e.g. "Yes") — it's already human-readable
+  return opt;
+}
+
+function buildMsDrop(id){
+  var ref=MS_MAP[id], sel=MS_SEL[id]||[], opts=_getOptsForKey(ref.key);
+  var drop=document.getElementById(id+"Drop"); drop.innerHTML="";
+  var allDiv=document.createElement("div");
+  allDiv.className="ms-all"+(sel.length===0?" sel":"");
+  allDiv.textContent=tr("الكل","All");
+  allDiv.onclick=function(e){
+    e.stopPropagation(); MS_SEL[id]=[]; F[ref.scope][ref.key]=[];
+    updateMsLabel(id); drop.classList.remove("open"); triggerScope(ref.scope);
+  };
+  drop.appendChild(allDiv);
+  opts.forEach(function(opt){
+    var isSel=sel.includes(opt), div=document.createElement("div");
+    div.className="ms-opt"+(isSel?" sel":"");
+    div.innerHTML='<span class="ms-chk">'+(isSel?"✓":"")+'</span><span>'+esc(_labelForOpt(ref.key,opt))+'</span>';
+    div.onclick=function(e){
+      e.stopPropagation();
+      var arr=MS_SEL[id]||(MS_SEL[id]=[]), idx=arr.indexOf(opt);
+      if(idx>=0) arr.splice(idx,1); else arr.push(opt);
+      F[ref.scope][ref.key]=arr.slice();
+      buildMsDrop(id); updateMsLabel(id); triggerScope(ref.scope);
+    };
+    drop.appendChild(div);
+  });
+}
+
+function updateMsLabel(id){
+  var ref=MS_MAP[id]; if(!ref) return;
+  var sel=MS_SEL[id]||[], lblEl=document.getElementById(id+"Lbl"); if(!lblEl) return;
+  var def;
+  if(ref.key==="status") def=tr("الحالة","Status");
+  else if(ref.key==="module") def=tr("الوحدة","Module");
+  else if(ref.key==="design") def=tr("التصميم","Design");
+  else if(ref.key==="uiux")   def="UI/UX";
+  else def="—";
+  if(!sel.length) lblEl.textContent=def;
+  else if(sel.length===1) lblEl.textContent=_labelForOpt(ref.key,sel[0]);
+  else lblEl.textContent=sel.length+" "+tr("محدد","selected");
+}
+
+function triggerScope(scope){
+  if(scope==="i"){ideasPage=1;renderIdeas();}
+  else if(scope==="a") runAnalysis();
+  else runTrends();
+}
+document.addEventListener("click",function(e){
+  if(!e.target.closest(".ms")) document.querySelectorAll(".ms-drop").forEach(function(d){d.classList.remove("open");});
+});
 
 // ════════════════════════════════════════════════════
 // IDEAS TAB
 // ════════════════════════════════════════════════════
-function getIdeasData(){F.i.from=document.getElementById("iDateFrom").value;F.i.to=document.getElementById("iDateTo").value;var search=(document.getElementById("searchInput").value||"").toLowerCase(),d=getF("i");if(search)d=d.filter(function(r){return(r.content||"").toLowerCase().includes(search)||(r.author||"").toLowerCase().includes(search);});var sort=document.getElementById("sortSel").value;return d.sort(function(a,b){return sort==="votes"?b.votes-a.votes:b.date.localeCompare(a.date);});}
-function renderIdeas(){if(RAW.length===0)return;var data=getIdeasData();updateKPIs(data);var total=data.length;document.getElementById("iCount").textContent=total+" "+tr("فكرة","ideas");var totalP=Math.ceil(total/PER);ideasPage=Math.max(1,Math.min(ideasPage,totalP||1));var slice=data.slice((ideasPage-1)*PER,ideasPage*PER);document.getElementById("ideasList").innerHTML=slice.map(function(r){var sc=S_CFG[r.status]||{ar:r.status,en:r.status,c:"#19A2A5",bg:"#cffafe"},mc2=mc(r.module),vc=r.votes>=50?"#F59E0B":r.votes>=20?"#19A2A5":"#94a3b8";return'<div class="idea-row" style="border-right:4px solid '+mc2+'" data-href="'+(r.link||"")+'" onclick="openLink(this)"><div class="ivote"><div class="ivnum" style="color:'+vc+'">'+r.votes+'</div><div class="ivlbl">🗳️</div></div><div class="ibody"><div class="itxt">'+esc(r.content.substring(0,180))+(r.content.length>180?"…":"")+'</div><div class="itags"><span class="tag" style="background:'+sc.bg+';color:'+sc.c+'">'+(lang==="ar"?sc.ar:sc.en)+'</span><span class="tag" style="background:'+mc2+'22;color:'+mc2+';border:1px solid '+mc2+'40">'+mName(r.module)+'</span><span class="tmeta">👤 '+esc(r.author)+'</span><span class="tmeta">📅 '+r.date+'</span>'+(r.link&&r.link!=="#"?'<span style="color:#19A2A5;font-size:10px">🔗 '+tr("رابط","Link")+'</span>':"")+'</div></div></div>';}).join("");var pg=document.getElementById("pag");if(totalP<=1){pg.innerHTML="";return;}var html='<button class="pb" onclick="goPg('+(ideasPage-1)+')">&#8249;</button>';for(var i=1;i<=totalP;i++){if(totalP<=7||i===1||i===totalP||Math.abs(i-ideasPage)<=2)html+='<button class="pb'+(i===ideasPage?" active":"")+'" onclick="goPg('+i+')">'+i+'</button>';else if(Math.abs(i-ideasPage)===3)html+='<span style="color:var(--sub);padding:4px">…</span>';}html+='<button class="pb" onclick="goPg('+(ideasPage+1)+')">&#8250;</button>';pg.innerHTML=html;}
+function getIdeasData(){
+  F.i.from=document.getElementById("iDateFrom").value;
+  F.i.to=document.getElementById("iDateTo").value;
+  var search=(document.getElementById("searchInput").value||"").toLowerCase();
+  var d=getF("i");
+  if(search) d=d.filter(function(r){return(r.content||"").toLowerCase().includes(search)||(r.author||"").toLowerCase().includes(search);});
+  var sort=document.getElementById("sortSel").value;
+  return d.sort(function(a,b){return sort==="votes"?b.votes-a.votes:b.date.localeCompare(a.date);});
+}
+
+function renderIdeas(){
+  if(RAW.length===0) return;
+  var data=getIdeasData();
+  updateKPIs(data);
+  var total=data.length;
+  document.getElementById("iCount").textContent=total+" "+tr("فكرة","ideas");
+  var totalP=Math.ceil(total/PER); ideasPage=Math.max(1,Math.min(ideasPage,totalP||1));
+  var slice=data.slice((ideasPage-1)*PER,ideasPage*PER);
+  document.getElementById("ideasList").innerHTML=slice.map(function(r){
+    var sc=S_CFG[r.status]||{ar:r.status,en:r.status,c:"#19A2A5",bg:"#cffafe"};
+    var mc2=mc(r.module), vc=r.votes>=50?"#F59E0B":r.votes>=20?"#19A2A5":"#94a3b8";
+    // Build Design and UI/UX chips — only shown when value is non-empty
+    var designChip = r.design ? '<span class="tag tag-design">🎨 '+tr("تصميم","Design")+': '+esc(r.design)+'</span>' : "";
+    var uiuxChip   = r.uiux   ? '<span class="tag tag-uiux">🖥️ UI/UX: '+esc(r.uiux)+'</span>' : "";
+    return '<div class="idea-row" style="border-right:4px solid '+mc2+'" data-href="'+(r.link||"")+'" onclick="openLink(this)">'+
+      '<div class="ivote"><div class="ivnum" style="color:'+vc+'">'+r.votes+'</div><div class="ivlbl">🗳️</div></div>'+
+      '<div class="ibody">'+
+        '<div class="itxt">'+esc(r.content)+'</div>'+
+        '<div class="itags">'+
+          '<span class="tag" style="background:'+sc.bg+';color:'+sc.c+'">'+(lang==="ar"?sc.ar:sc.en)+'</span>'+
+          '<span class="tag" style="background:'+mc2+'22;color:'+mc2+';border:1px solid '+mc2+'40">'+mName(r.module)+'</span>'+
+          designChip+uiuxChip+
+          '<span class="tmeta">👤 '+esc(r.author)+'</span>'+
+          '<span class="tmeta">📅 '+r.date+'</span>'+
+          (r.link&&r.link!=="#"?'<span style="color:#19A2A5;font-size:10px">🔗 '+tr("رابط","Link")+'</span>':"")+
+        '</div>'+
+      '</div></div>';
+  }).join("");
+  var pg=document.getElementById("pag");
+  if(totalP<=1){pg.innerHTML="";return;}
+  var html='<button class="pb" onclick="goPg('+(ideasPage-1)+')">&#8249;</button>';
+  for(var i=1;i<=totalP;i++){
+    if(totalP<=7||i===1||i===totalP||Math.abs(i-ideasPage)<=2)
+      html+='<button class="pb'+(i===ideasPage?" active":"")+'" onclick="goPg('+i+')">'+i+'</button>';
+    else if(Math.abs(i-ideasPage)===3)
+      html+='<span style="color:var(--sub);padding:4px">…</span>';
+  }
+  html+='<button class="pb" onclick="goPg('+(ideasPage+1)+')">&#8250;</button>';
+  pg.innerHTML=html;
+}
+
 function goPg(p){var data=getIdeasData();ideasPage=Math.max(1,Math.min(p,Math.ceil(data.length/PER)||1));renderIdeas();window.scrollTo({top:0,behavior:"smooth"});}
-function updateKPIs(data){var total=data.length,launched=data.filter(function(r){return isLaunched(r.status);}).length,votes=data.reduce(function(s,r){return s+r.votes;},0),pending=total-launched,avg=total?(votes/total).toFixed(1):0,pct=total?((launched/total)*100).toFixed(1):0;document.getElementById("kpiTotal").textContent=total.toLocaleString();document.getElementById("kpiLaunched").textContent=launched.toLocaleString();document.getElementById("kpiLaunchSub").textContent=pct+"% "+tr("من الإجمالي","of total");document.getElementById("kpiVotes").textContent=votes.toLocaleString();document.getElementById("kpiAvgSub").textContent=tr("متوسط","Avg")+": "+avg;document.getElementById("kpiPending").textContent=pending.toLocaleString();document.getElementById("hdrBadge").textContent="📄 "+total;}
-function resetIdeas(){var today=getToday();F.i={status:[],module:[],from:DATE_MIN,to:today};MS_SEL["msIS"]=[];MS_SEL["msIM"]=[];document.getElementById("searchInput").value="";document.getElementById("iDateFrom").value=DATE_MIN;document.getElementById("iDateTo").value=today;document.getElementById("sortSel").value="votes";["msIS","msIM"].forEach(updateMsLabel);ideasPage=1;renderIdeas();}
+
+function updateKPIs(data){
+  var total=data.length,launched=data.filter(function(r){return isLaunched(r.status);}).length;
+  var votes=data.reduce(function(s,r){return s+r.votes;},0);
+  var pending=total-launched, avg=total?(votes/total).toFixed(1):0, pct=total?((launched/total)*100).toFixed(1):0;
+  document.getElementById("kpiTotal").textContent=total.toLocaleString();
+  document.getElementById("kpiLaunched").textContent=launched.toLocaleString();
+  document.getElementById("kpiLaunchSub").textContent=pct+"% "+tr("من الإجمالي","of total");
+  document.getElementById("kpiVotes").textContent=votes.toLocaleString();
+  document.getElementById("kpiAvgSub").textContent=tr("متوسط","Avg")+": "+avg;
+  document.getElementById("kpiPending").textContent=pending.toLocaleString();
+  document.getElementById("hdrBadge").textContent="📄 "+total;
+}
+
+function resetIdeas(){
+  var today=getToday();
+  F.i={status:[],module:[],design:[],uiux:[],from:DATE_MIN,to:today};
+  MS_SEL["msIS"]=[]; MS_SEL["msIM"]=[]; MS_SEL["msID"]=[]; MS_SEL["msIU"]=[];
+  document.getElementById("searchInput").value="";
+  document.getElementById("iDateFrom").value=DATE_MIN;
+  document.getElementById("iDateTo").value=today;
+  document.getElementById("sortSel").value="votes";
+  ["msIS","msIM","msID","msIU"].forEach(updateMsLabel);
+  ideasPage=1; renderIdeas();
+}
 
 // ════════════════════════════════════════════════════
 // ANALYSIS TAB
 // ════════════════════════════════════════════════════
-function runAnalysis(){if(RAW.length===0)return;destroyAll();F.a.from=document.getElementById("aDateFrom").value;F.a.to=document.getElementById("aDateTo").value;var data=getF("a");document.getElementById("aCount").textContent=data.length+" "+tr("فكرة","ideas");buildStatusChart(data);buildModuleChart(data);buildTop20(data);buildTop5(data);buildLR(data);}
-function resetAnalysis(){var today=getToday();F.a={status:[],module:[],from:DATE_MIN,to:today};MS_SEL["msAS"]=[];MS_SEL["msAM"]=[];document.getElementById("aDateFrom").value=DATE_MIN;document.getElementById("aDateTo").value=today;["msAS","msAM"].forEach(updateMsLabel);runAnalysis();}
-function buildStatusChart(data){var map={};data.forEach(function(r){if(r.status)map[r.status]=(map[r.status]||0)+1;});var entries=Object.entries(map).sort(function(a,b){return b[1]-a[1];});var cc=ccol(),ctx=document.getElementById("cvStatus");chSt=new Chart(ctx,{type:"doughnut",data:{labels:entries.map(function(e){return sLabel(e[0])||e[0];}),datasets:[{data:entries.map(function(e){return e[1];}),backgroundColor:entries.map(function(e){return S_CFG[e[0]]?.c||"#19A2A5";}),borderWidth:2,borderColor:cc.bg,hoverOffset:5}]},options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.label+": "+c.raw;}}}},cutout:"55%",responsive:true,onClick:function(e,el){if(!el.length)return;toggleAF("status",entries[el[0].index][0],"msAS");}}});var legEl=document.getElementById("statusLeg");legEl.innerHTML=entries.map(function(e){var s=e[0],v=e[1],cfg=S_CFG[s]||{c:"#19A2A5"},active=!F.a.status.length||F.a.status.includes(s);return'<div class="sleg-item" style="opacity:'+(active?1:.4)+'" onclick="toggleAF(\'status\',\''+s.replace(/'/g,"\\'")+'\',\'msAS\')"><div class="sleg-dot" style="background:'+cfg.c+'"></div><span class="sleg-lbl">'+(sLabel(s)||s)+'</span><span class="sleg-val" style="color:'+cfg.c+'">'+v+'</span></div>';}).join("");}
-function buildModuleChart(data){var map={};data.forEach(function(r){if(r.module)map[r.module]=(map[r.module]||0)+1;});var entries=Object.entries(map).sort(function(a,b){return b[1]-a[1];});var cc=ccol(),ctx=document.getElementById("cvModule");chMod=new Chart(ctx,{type:"bar",data:{labels:entries.map(function(e){return mName(e[0]);}),datasets:[{data:entries.map(function(e){return e[1];}),backgroundColor:entries.map(function(e){var c2=mc(e[0]);return(!F.a.module.length||F.a.module.includes(e[0]))?c2:c2+"55";}),borderRadius:4,label:tr("الأفكار","Ideas")}]},options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+c.raw;}}}},scales:{x:{grid:{color:cc.grid},ticks:{color:cc.text}},y:{grid:{color:"transparent"},ticks:{color:cc.text,font:{size:11}}}},onClick:function(e,el){if(!el.length)return;toggleAF("module",entries[el[0].index][0],"msAM");}}});}
-function toggleAF(key,val,msId){var arr=F.a[key],idx=arr.indexOf(val);if(idx>=0)arr.splice(idx,1);else arr.push(val);MS_SEL[msId]=arr.slice();updateMsLabel(msId);runAnalysis();}
-function buildTop20(data){var top=data.slice().sort(function(a,b){return b.votes-a.votes;}).slice(0,20),maxV=top[0]?top[0].votes:1,medals=["🥇","🥈","🥉"];document.getElementById("t20").innerHTML='<thead><tr><th>#</th><th>'+tr("الفكرة","Idea")+'</th><th>'+tr("الحالة","Status")+'</th><th>'+tr("الوحدة","Module")+'</th><th>'+tr("التصويتات","Votes")+'</th></tr></thead><tbody>'+top.map(function(r,i){var sc=S_CFG[r.status]||{ar:r.status,en:r.status,c:"#19A2A5",bg:"#cffafe"},mc2=mc(r.module),bw=Math.max(6,Math.round((r.votes/maxV)*70)),rc=i<3?["#F59E0B","#94a3b8","#cd7c2f"][i]:"var(--sub)";return'<tr data-href="'+(r.link||"")+'" onclick="openLink(this)"><td style="text-align:center;font-weight:700;color:'+rc+'">'+(i<3?medals[i]:"#"+(i+1))+'</td><td style="max-width:280px">'+esc(r.content.substring(0,80))+(r.content.length>80?"…":"")+'</td><td><span class="tag" style="background:'+sc.bg+';color:'+sc.c+'">'+(lang==="ar"?sc.ar:sc.en)+'</span></td><td><span class="tag" style="background:'+mc2+'22;color:'+mc2+'">'+mName(r.module)+'</span></td><td style="text-align:center"><span class="barmini" style="width:'+bw+'px;margin-left:6px;margin-right:6px"></span><b style="color:#F59E0B">'+r.votes+'</b></td></tr>';}).join("")+'</tbody>';}
-function buildTop5(data){var map={};data.forEach(function(r){var k=(r.authorIdx&&r.authorIdx.trim())?r.authorIdx.trim():("name::"+r.author);if(!map[k])map[k]={name:r.author,ideas:[],votes:0};map[k].ideas.push(r);map[k].votes+=r.votes;});var top5=Object.values(map).sort(function(a,b){return b.ideas.length-a.ideas.length;}).slice(0,5);document.getElementById("top5").innerHTML=top5.map(function(c,i){return'<div class="cust-card"><div class="cust-hdr" onclick="togCust('+i+')"><div class="cavatar">'+esc(c.name.charAt(0))+'</div><div style="flex:1;min-width:0"><div class="cname">'+esc(c.name)+'</div><div class="cmeta">'+c.ideas.length+' '+tr("أفكار","ideas")+' • '+c.votes+' '+tr("تصويت","votes")+'</div></div><div class="cbadges"><span class="tag" style="background:rgba(25,162,165,.15);color:#19A2A5">'+c.ideas.length+' 💡</span><span class="tag" style="background:rgba(245,158,11,.15);color:#F59E0B">'+c.votes+' 🗳️</span></div><span class="carr" id="ca'+i+'">▼</span></div><div class="cust-body" id="cb'+i+'">'+c.ideas.slice().sort(function(a,b){return b.votes-a.votes;}).map(function(r){var sc=S_CFG[r.status]||{ar:r.status,en:r.status,c:"#19A2A5",bg:"#cffafe"};return'<div class="cidea-row" data-href="'+(r.link||"")+'" onclick="event.stopPropagation();openLink(this)"><b style="color:#F59E0B;min-width:26px;font-size:12px">'+r.votes+'</b><span style="flex:1;font-size:11px;line-height:1.5;word-break:break-word">'+esc(r.content)+'</span><span class="tag" style="background:'+sc.bg+';color:'+sc.c+'">'+(lang==="ar"?sc.ar:sc.en)+'</span>'+(r.link&&r.link!=="#"?'<span style="color:#19A2A5;font-size:10px">🔗</span>':"")+' </div>';}).join("")+'</div></div>';}).join("");}
+function runAnalysis(){
+  if(RAW.length===0) return;
+  destroyAll();
+  F.a.from=document.getElementById("aDateFrom").value;
+  F.a.to=document.getElementById("aDateTo").value;
+  var data=getF("a");
+  document.getElementById("aCount").textContent=data.length+" "+tr("فكرة","ideas");
+  buildStatusChart(data);buildModuleChart(data);buildTop20(data);buildTop5(data);buildLR(data);
+}
+function resetAnalysis(){
+  var today=getToday();
+  F.a={status:[],module:[],design:[],uiux:[],from:DATE_MIN,to:today};
+  MS_SEL["msAS"]=[]; MS_SEL["msAM"]=[]; MS_SEL["msAD"]=[]; MS_SEL["msAU"]=[];
+  document.getElementById("aDateFrom").value=DATE_MIN;
+  document.getElementById("aDateTo").value=today;
+  ["msAS","msAM","msAD","msAU"].forEach(updateMsLabel);
+  runAnalysis();
+}
+
+function buildStatusChart(data){
+  var map={};data.forEach(function(r){if(r.status)map[r.status]=(map[r.status]||0)+1;});
+  var entries=Object.entries(map).sort(function(a,b){return b[1]-a[1];});
+  var cc=ccol(), ctx=document.getElementById("cvStatus");
+  chSt=new Chart(ctx,{type:"doughnut",data:{labels:entries.map(function(e){return sLabel(e[0])||e[0];}),datasets:[{data:entries.map(function(e){return e[1];}),backgroundColor:entries.map(function(e){return S_CFG[e[0]]?.c||"#19A2A5";}),borderWidth:2,borderColor:cc.bg,hoverOffset:5}]},options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.label+": "+c.raw;}}}},cutout:"55%",responsive:true,onClick:function(e,el){if(!el.length)return;toggleAF("status",entries[el[0].index][0],"msAS");}}});
+  var legEl=document.getElementById("statusLeg");
+  legEl.innerHTML=entries.map(function(e){var s=e[0],v=e[1],cfg=S_CFG[s]||{c:"#19A2A5"},active=!F.a.status.length||F.a.status.includes(s);return'<div class="sleg-item" style="opacity:'+(active?1:.4)+'" onclick="toggleAF(\'status\',\''+s.replace(/'/g,"\\'")+'\',\'msAS\')"><div class="sleg-dot" style="background:'+cfg.c+'"></div><span class="sleg-lbl">'+(sLabel(s)||s)+'</span><span class="sleg-val" style="color:'+cfg.c+'">'+v+'</span></div>';}).join("");
+}
+
+function buildModuleChart(data){
+  var map={};data.forEach(function(r){if(r.module)map[r.module]=(map[r.module]||0)+1;});
+  var entries=Object.entries(map).sort(function(a,b){return b[1]-a[1];});
+  var cc=ccol(), ctx=document.getElementById("cvModule");
+  chMod=new Chart(ctx,{type:"bar",data:{labels:entries.map(function(e){return mName(e[0]);}),datasets:[{data:entries.map(function(e){return e[1];}),backgroundColor:entries.map(function(e){var c2=mc(e[0]);return(!F.a.module.length||F.a.module.includes(e[0]))?c2:c2+"55";}),borderRadius:4,label:tr("الأفكار","Ideas")}]},options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+c.raw;}}}},scales:{x:{grid:{color:cc.grid},ticks:{color:cc.text}},y:{grid:{color:"transparent"},ticks:{color:cc.text,font:{size:11}}}},onClick:function(e,el){if(!el.length)return;toggleAF("module",entries[el[0].index][0],"msAM");}}});
+}
+
+function toggleAF(key,val,msId){
+  var arr=F.a[key], idx=arr.indexOf(val);
+  if(idx>=0) arr.splice(idx,1); else arr.push(val);
+  MS_SEL[msId]=arr.slice(); updateMsLabel(msId); runAnalysis();
+}
+
+function buildTop20(data){
+  var top=data.slice().sort(function(a,b){return b.votes-a.votes;}).slice(0,20);
+  var maxV=top[0]?top[0].votes:1, medals=["🥇","🥈","🥉"];
+  document.getElementById("t20").innerHTML=
+    '<thead><tr>'+
+      '<th>#</th>'+
+      '<th>'+tr("الفكرة","Idea")+'</th>'+
+      '<th>'+tr("الحالة","Status")+'</th>'+
+      '<th>'+tr("الوحدة","Module")+'</th>'+
+      '<th>'+tr("التصميم","Design")+'</th>'+
+      '<th>UI/UX</th>'+
+      '<th>'+tr("التصويتات","Votes")+'</th>'+
+    '</tr></thead><tbody>'+
+    top.map(function(r,i){
+      var sc=S_CFG[r.status]||{ar:r.status,en:r.status,c:"#19A2A5",bg:"#cffafe"};
+      var mc2=mc(r.module), bw=Math.max(6,Math.round((r.votes/maxV)*70));
+      var rc=i<3?["#F59E0B","#94a3b8","#cd7c2f"][i]:"var(--sub)";
+      var designCell = r.design ? '<span class="tag tag-design">'+esc(r.design)+'</span>' : '<span style="color:var(--sub);font-size:10px">—</span>';
+      var uiuxCell   = r.uiux   ? '<span class="tag tag-uiux">'+esc(r.uiux)+'</span>'   : '<span style="color:var(--sub);font-size:10px">—</span>';
+      return '<tr data-href="'+(r.link||"")+'" onclick="openLink(this)">'+
+        '<td style="text-align:center;font-weight:700;color:'+rc+'">'+(i<3?medals[i]:"#"+(i+1))+'</td>'+
+        '<td style="white-space:normal;word-break:break-word;min-width:220px;max-width:420px">'+esc(r.content)+'</td>'+
+        '<td><span class="tag" style="background:'+sc.bg+';color:'+sc.c+'">'+(lang==="ar"?sc.ar:sc.en)+'</span></td>'+
+        '<td><span class="tag" style="background:'+mc2+'22;color:'+mc2+'">'+mName(r.module)+'</span></td>'+
+        '<td>'+designCell+'</td>'+
+        '<td>'+uiuxCell+'</td>'+
+        '<td style="text-align:center"><span class="barmini" style="width:'+bw+'px;margin-left:6px;margin-right:6px"></span><b style="color:#F59E0B">'+r.votes+'</b></td>'+
+      '</tr>';
+    }).join("")+
+  '</tbody>';
+}
+
+function buildTop5(data){
+  var map={};
+  data.forEach(function(r){
+    var k=(r.authorIdx&&r.authorIdx.trim())?r.authorIdx.trim():("name::"+r.author);
+    if(!map[k]) map[k]={name:r.author,ideas:[],votes:0};
+    map[k].ideas.push(r); map[k].votes+=r.votes;
+  });
+  var top5=Object.values(map).sort(function(a,b){return b.ideas.length-a.ideas.length;}).slice(0,5);
+  document.getElementById("top5").innerHTML=top5.map(function(c,i){
+    return '<div class="cust-card">'+
+      '<div class="cust-hdr" onclick="togCust('+i+')">'+
+        '<div class="cavatar">'+esc(c.name.charAt(0))+'</div>'+
+        '<div style="flex:1;min-width:0"><div class="cname">'+esc(c.name)+'</div><div class="cmeta">'+c.ideas.length+' '+tr("أفكار","ideas")+' • '+c.votes+' '+tr("تصويت","votes")+'</div></div>'+
+        '<div class="cbadges"><span class="tag" style="background:rgba(25,162,165,.15);color:#19A2A5">'+c.ideas.length+' 💡</span><span class="tag" style="background:rgba(245,158,11,.15);color:#F59E0B">'+c.votes+' 🗳️</span></div>'+
+        '<span class="carr" id="ca'+i+'">▼</span>'+
+      '</div>'+
+      '<div class="cust-body" id="cb'+i+'">'+
+        c.ideas.slice().sort(function(a,b){return b.votes-a.votes;}).map(function(r){
+          var sc=S_CFG[r.status]||{ar:r.status,en:r.status,c:"#19A2A5",bg:"#cffafe"};
+          var designChip = r.design ? '<span class="tag tag-design">🎨 '+esc(r.design)+'</span>' : "";
+          var uiuxChip   = r.uiux   ? '<span class="tag tag-uiux">🖥️ '+esc(r.uiux)+'</span>'   : "";
+          return '<div class="cidea-row" data-href="'+(r.link||"")+'" onclick="event.stopPropagation();openLink(this)">'+
+            '<b style="color:#F59E0B;min-width:26px;font-size:12px">'+r.votes+'</b>'+
+            '<div style="flex:1;min-width:0">'+
+              '<div style="font-size:11px;line-height:1.5;word-break:break-word;margin-bottom:4px">'+esc(r.content)+'</div>'+
+              '<div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">'+
+                '<span class="tag" style="background:'+sc.bg+';color:'+sc.c+'">'+(lang==="ar"?sc.ar:sc.en)+'</span>'+
+                designChip+uiuxChip+
+                (r.link&&r.link!=="#"?'<span style="color:#19A2A5;font-size:10px">🔗</span>':"")+
+              '</div>'+
+            '</div>'+
+          '</div>';
+        }).join("")+
+      '</div>'+
+    '</div>';
+  }).join("");
+}
+
 function togCust(i){document.getElementById("cb"+i).classList.toggle("open");document.getElementById("ca"+i).classList.toggle("open");}
-function buildLR(data){var map={};data.forEach(function(r){if(r.module){if(!map[r.module])map[r.module]={t:0,l:0};map[r.module].t++;if(isLaunched(r.status))map[r.module].l++;}});var entries=Object.entries(map).sort(function(a,b){return(b[1].l/b[1].t)-(a[1].l/a[1].t);});document.getElementById("lrGrid").innerHTML=entries.map(function(e){var m=e[0],v=e[1],pct=Math.round((v.l/v.t)*100),mc2=mc(m);return'<div class="lr-item"><div class="lr-hdr"><span class="lr-name">'+mName(m)+'</span><span class="lr-pct" style="color:'+mc2+'">'+pct+'%</span></div><div class="lr-track"><div class="lr-fill" style="width:'+pct+'%;background:'+mc2+'"></div></div><div class="lr-sub">'+v.l+' '+tr("تم الإطلاق","Launched")+' '+tr("من","of")+' '+v.t+'</div></div>';}).join("");}
+
+function buildLR(data){
+  var map={};
+  data.forEach(function(r){if(r.module){if(!map[r.module])map[r.module]={t:0,l:0};map[r.module].t++;if(isLaunched(r.status))map[r.module].l++;}});
+  var entries=Object.entries(map).sort(function(a,b){return(b[1].l/b[1].t)-(a[1].l/a[1].t);});
+  document.getElementById("lrGrid").innerHTML=entries.map(function(e){
+    var m=e[0],v=e[1],pct=Math.round((v.l/v.t)*100),mc2=mc(m);
+    return '<div class="lr-item"><div class="lr-hdr"><span class="lr-name">'+mName(m)+'</span><span class="lr-pct" style="color:'+mc2+'">'+pct+'%</span></div><div class="lr-track"><div class="lr-fill" style="width:'+pct+'%;background:'+mc2+'"></div></div><div class="lr-sub">'+v.l+' '+tr("تم الإطلاق","Launched")+' '+tr("من","of")+' '+v.t+'</div></div>';
+  }).join("");
+}
 
 // ════════════════════════════════════════════════════
 // TRENDS TAB
 // ════════════════════════════════════════════════════
-function runTrends(){if(RAW.length===0)return;destroyAll();F.t.from=document.getElementById("tDateFrom").value;F.t.to=document.getElementById("tDateTo").value;F.t.iv=document.getElementById("ivSel").value;var iv=F.t.iv,ivLbl=iv==="monthly"?tr("شهري","Monthly"):iv==="quarterly"?tr("ربع سنوي","Quarterly"):tr("سنوي","Yearly");document.getElementById("tSub1").textContent=tr("التغيير بين الفترات","Change between periods")+" • "+ivLbl;var data=getF("t");buildTrendChart(data);buildModLineChart(data);buildStLineChart(data);}
-function resetTrends(){var today=getToday();F.t={status:[],module:[],from:DATE_MIN,to:today,iv:"monthly"};MS_SEL["msTS"]=[];MS_SEL["msTM"]=[];document.getElementById("tDateFrom").value=DATE_MIN;document.getElementById("tDateTo").value=today;document.getElementById("ivSel").value="monthly";["msTS","msTM"].forEach(updateMsLabel);runTrends();}
-function buildTrendChart(data){var iv=F.t.iv,map={};data.forEach(function(r){if(!r.date)return;var k=getKey(r.date,iv);if(k)map[k]=(map[k]||0)+1;});var keys=Object.keys(map).sort(),labels=keys.map(function(k){return fmtKey(k,iv);}),counts=keys.map(function(k){return map[k];}),deltas=counts.map(function(c,i){return i===0?null:c-counts[i-1];});var cc=ccol(),ctx=document.getElementById("cvTrend");var deltaPlugin={id:"deltaLabels",afterDatasetsDraw:function(chart){var c2=chart.ctx,x=chart.scales.x,y=chart.scales.y;if(!x||!y)return;counts.forEach(function(v,i){var d=deltas[i];if(d===null)return;try{var xp=x.getPixelForValue(i),yp=y.getPixelForValue(v);c2.save();c2.font="bold 9px sans-serif";c2.fillStyle=d>=0?"#1BBFA0":"#EF4444";c2.textAlign="center";c2.fillText(d>=0?"+"+d:String(d),xp,yp-6);c2.restore();}catch(e){}});}};chTrend=new Chart(ctx,{type:"bar",data:{labels:labels,datasets:[{label:tr("الأفكار","Ideas"),data:counts,backgroundColor:counts.map(function(_,i){return deltas[i]===null?"#19A2A5":deltas[i]>=0?"#1BBFA0":"#EF4444";}),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var d=deltas[c.dataIndex];return c.raw+(d===null?"":(d>=0?" (+"+d+")":" ("+d+")"));},title:function(tt){return[tt[0].label];}}}},scales:{x:{grid:{color:"transparent"},ticks:{color:cc.text,font:{size:9},maxRotation:45}},y:{grid:{color:cc.grid},ticks:{color:cc.text}}}},plugins:[deltaPlugin]});}
-function buildModLineChart(data){var iv=F.t.iv,allK=new Set(),mm={};data.forEach(function(r){if(!r.date)return;var k=getKey(r.date,iv);if(!k)return;allK.add(k);if(!mm[r.module])mm[r.module]={};mm[r.module][k]=(mm[r.module][k]||0)+1;});var keys=[...allK].sort(),labels=keys.map(function(k){return fmtKey(k,iv);}),mods=Object.keys(mm),cc=ccol(),ctx=document.getElementById("cvModLine");chML=new Chart(ctx,{type:"line",data:{labels:labels,datasets:mods.map(function(m){return{label:mName(m),data:keys.map(function(k){return mm[m][k]||0;}),borderColor:mc(m),backgroundColor:"transparent",borderWidth:2,pointRadius:2,tension:.3};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:cc.text,font:{size:10}},position:"bottom"}},scales:{x:{grid:{color:"transparent"},ticks:{color:cc.text,font:{size:9},maxRotation:45}},y:{grid:{color:cc.grid},ticks:{color:cc.text}}}}});}
-function buildStLineChart(data){var iv=F.t.iv,allK=new Set(),sm={};data.forEach(function(r){if(!r.date||!r.status)return;var k=getKey(r.date,iv);if(!k)return;allK.add(k);if(!sm[r.status])sm[r.status]={};sm[r.status][k]=(sm[r.status][k]||0)+1;});var keys=[...allK].sort(),labels=keys.map(function(k){return fmtKey(k,iv);}),sts=Object.keys(sm),cc=ccol(),ctx=document.getElementById("cvStLine");chSL=new Chart(ctx,{type:"line",data:{labels:labels,datasets:sts.map(function(s){return{label:sLabel(s)||s,data:keys.map(function(k){return sm[s][k]||0;}),borderColor:S_CFG[s]?.c||"#19A2A5",backgroundColor:"transparent",borderWidth:2,pointRadius:2,tension:.3};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:cc.text,font:{size:10}},position:"bottom"}},scales:{x:{grid:{color:"transparent"},ticks:{color:cc.text,font:{size:9},maxRotation:45}},y:{grid:{color:cc.grid},ticks:{color:cc.text}}}}});}
+function runTrends(){
+  if(RAW.length===0) return;
+  destroyAll();
+  F.t.from=document.getElementById("tDateFrom").value;
+  F.t.to=document.getElementById("tDateTo").value;
+  F.t.iv=document.getElementById("ivSel").value;
+  var iv=F.t.iv, ivLbl=iv==="monthly"?tr("شهري","Monthly"):iv==="quarterly"?tr("ربع سنوي","Quarterly"):tr("سنوي","Yearly");
+  document.getElementById("tSub1").textContent=tr("التغيير بين الفترات","Change between periods")+" • "+ivLbl;
+  var data=getF("t");
+  buildTrendChart(data); buildModLineChart(data); buildStLineChart(data);
+}
+function resetTrends(){
+  var today=getToday();
+  F.t={status:[],module:[],design:[],uiux:[],from:DATE_MIN,to:today,iv:"monthly"};
+  MS_SEL["msTS"]=[]; MS_SEL["msTM"]=[]; MS_SEL["msTD"]=[]; MS_SEL["msTU"]=[];
+  document.getElementById("tDateFrom").value=DATE_MIN;
+  document.getElementById("tDateTo").value=today;
+  document.getElementById("ivSel").value="monthly";
+  ["msTS","msTM","msTD","msTU"].forEach(updateMsLabel);
+  runTrends();
+}
 
+function buildTrendChart(data){
+  var iv=F.t.iv, map={};
+  data.forEach(function(r){if(!r.date)return;var k=getKey(r.date,iv);if(k)map[k]=(map[k]||0)+1;});
+  var keys=Object.keys(map).sort(), labels=keys.map(function(k){return fmtKey(k,iv);}),
+      counts=keys.map(function(k){return map[k];}), deltas=counts.map(function(c,i){return i===0?null:c-counts[i-1];});
+  var cc=ccol(), ctx=document.getElementById("cvTrend");
+  var deltaPlugin={id:"deltaLabels",afterDatasetsDraw:function(chart){
+    var c2=chart.ctx, x=chart.scales.x, y=chart.scales.y; if(!x||!y) return;
+    counts.forEach(function(v,i){var d=deltas[i];if(d===null)return;try{var xp=x.getPixelForValue(i),yp=y.getPixelForValue(v);c2.save();c2.font="bold 9px sans-serif";c2.fillStyle=d>=0?"#1BBFA0":"#EF4444";c2.textAlign="center";c2.fillText(d>=0?"+"+d:String(d),xp,yp-6);c2.restore();}catch(e){}});
+  }};
+  chTrend=new Chart(ctx,{type:"bar",data:{labels:labels,datasets:[{label:tr("الأفكار","Ideas"),data:counts,backgroundColor:counts.map(function(_,i){return deltas[i]===null?"#19A2A5":deltas[i]>=0?"#1BBFA0":"#EF4444";}),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var d=deltas[c.dataIndex];return c.raw+(d===null?"":(d>=0?" (+"+d+")":" ("+d+")"));},title:function(tt){return[tt[0].label];}}}},scales:{x:{grid:{color:"transparent"},ticks:{color:cc.text,font:{size:9},maxRotation:45}},y:{grid:{color:cc.grid},ticks:{color:cc.text}}}},plugins:[deltaPlugin]});
+}
+
+function buildModLineChart(data){
+  var iv=F.t.iv, allK=new Set(), mm={};
+  data.forEach(function(r){if(!r.date)return;var k=getKey(r.date,iv);if(!k)return;allK.add(k);if(!mm[r.module])mm[r.module]={};mm[r.module][k]=(mm[r.module][k]||0)+1;});
+  var keys=[...allK].sort(), labels=keys.map(function(k){return fmtKey(k,iv);}), mods=Object.keys(mm), cc=ccol(), ctx=document.getElementById("cvModLine");
+  chML=new Chart(ctx,{type:"line",data:{labels:labels,datasets:mods.map(function(m){return{label:mName(m),data:keys.map(function(k){return mm[m][k]||0;}),borderColor:mc(m),backgroundColor:"transparent",borderWidth:2,pointRadius:2,tension:.3};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:cc.text,font:{size:10}},position:"bottom"}},scales:{x:{grid:{color:"transparent"},ticks:{color:cc.text,font:{size:9},maxRotation:45}},y:{grid:{color:cc.grid},ticks:{color:cc.text}}}}});
+}
+
+function buildStLineChart(data){
+  var iv=F.t.iv, allK=new Set(), sm={};
+  data.forEach(function(r){if(!r.date||!r.status)return;var k=getKey(r.date,iv);if(!k)return;allK.add(k);if(!sm[r.status])sm[r.status]={};sm[r.status][k]=(sm[r.status][k]||0)+1;});
+  var keys=[...allK].sort(), labels=keys.map(function(k){return fmtKey(k,iv);}), sts=Object.keys(sm), cc=ccol(), ctx=document.getElementById("cvStLine");
+  chSL=new Chart(ctx,{type:"line",data:{labels:labels,datasets:sts.map(function(s){return{label:sLabel(s)||s,data:keys.map(function(k){return sm[s][k]||0;}),borderColor:S_CFG[s]?.c||"#19A2A5",backgroundColor:"transparent",borderWidth:2,pointRadius:2,tension:.3};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:cc.text,font:{size:10}},position:"bottom"}},scales:{x:{grid:{color:"transparent"},ticks:{color:cc.text,font:{size:9},maxRotation:45}},y:{grid:{color:cc.grid},ticks:{color:cc.text}}}}});
+}
+
+// ════════════════════════════════════════════════════
+// LINK HELPER
+// ════════════════════════════════════════════════════
 function openLink(el){var url=el.getAttribute("data-href");if(url&&url!=="#")window.open(url,"_blank","noopener");}
 
-(function init(){var today=getToday();["iDateTo","aDateTo","tDateTo"].forEach(function(id){var el=document.getElementById(id);if(el)el.value=today;});["iDateFrom","aDateFrom","tDateFrom"].forEach(function(id){var el=document.getElementById(id);if(el)el.value=DATE_MIN;});applyLang();})();
+// ════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════
+(function init(){
+  var today=getToday();
+  ["iDateTo","aDateTo","tDateTo"].forEach(function(id){var el=document.getElementById(id);if(el)el.value=today;});
+  ["iDateFrom","aDateFrom","tDateFrom"].forEach(function(id){var el=document.getElementById(id);if(el)el.value=DATE_MIN;});
+  applyLang();
+})();
 </script>
 </body>
 </html>
