@@ -106,11 +106,13 @@ body.light .ivote{background:#f8fafc}
 .itxt{font-size:12px;line-height:1.5;margin-bottom:7px;word-break:break-word}
 .itags{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .tag{font-size:10px;padding:2px 8px;border-radius:16px;font-weight:600;white-space:nowrap}
-/* Design & UI/UX chip colours */
-.tag-design{background:#fde68a;color:#92400e}
-.tag-uiux{background:#ede9fe;color:#5b21b6}
+/* Design / UI / UX chip colours */
+.tag-design{background:#fde68a;color:#92400e;font-weight:700}
+.tag-ui{background:#dbeafe;color:#1d4ed8;font-weight:700}
+.tag-ux{background:#fce7f3;color:#9d174d;font-weight:700}
 body.light .tag-design{background:#fef3c7;color:#92400e}
-body.light .tag-uiux{background:#ede9fe;color:#5b21b6}
+body.light .tag-ui{background:#dbeafe;color:#1d4ed8}
+body.light .tag-ux{background:#fce7f3;color:#9d174d}
 .tmeta{font-size:10px;color:var(--sub)}
 
 /* ── PAGINATION ── */
@@ -678,6 +680,25 @@ document.addEventListener("click",function(e){
 });
 
 // ════════════════════════════════════════════════════
+// CHIP BUILDER — Design / UI / UX
+// ════════════════════════════════════════════════════
+// Returns HTML string of chips for a record.
+// design = "Yes"/truthy → 🎨 Design chip
+// uiux   = "UI"         → 🖥 UI chip
+// uiux   = "UX"         → ✏️ UX chip
+function buildChips(r, includeLabel){
+  var chips = "";
+  if(r.design) chips += '<span class="tag tag-design">🎨 Design</span>';
+  if(r.uiux){
+    var v = r.uiux.toUpperCase();
+    if(v==="UI")      chips += '<span class="tag tag-ui">🖥 UI</span>';
+    else if(v==="UX") chips += '<span class="tag tag-ux">✏️ UX</span>';
+    else              chips += '<span class="tag tag-ui">🖥 '+esc(r.uiux)+'</span>';
+  }
+  return chips;
+}
+
+// ════════════════════════════════════════════════════
 // IDEAS TAB
 // ════════════════════════════════════════════════════
 function getIdeasData(){
@@ -701,8 +722,7 @@ function renderIdeas(){
   document.getElementById("ideasList").innerHTML=slice.map(function(r){
     var sc=S_CFG[r.status]||{ar:r.status,en:r.status,c:"#19A2A5",bg:"#cffafe"};
     var mc2=mc(r.module), vc=r.votes>=50?"#F59E0B":r.votes>=20?"#19A2A5":"#94a3b8";
-    // UI/UX chip — only shown when value is non-empty
-    var uiuxChip = r.uiux ? '<span class="tag tag-uiux">🖥️ UI/UX: '+esc(r.uiux)+'</span>' : "";
+    var chipsHtml = buildChips(r);
     return '<div class="idea-row" style="border-right:4px solid '+mc2+'" data-href="'+(r.link||"")+'" onclick="openLink(this)">'+
       '<div class="ivote"><div class="ivnum" style="color:'+vc+'">'+r.votes+'</div><div class="ivlbl">🗳️</div></div>'+
       '<div class="ibody">'+
@@ -710,7 +730,7 @@ function renderIdeas(){
         '<div class="itags">'+
           '<span class="tag" style="background:'+sc.bg+';color:'+sc.c+'">'+(lang==="ar"?sc.ar:sc.en)+'</span>'+
           '<span class="tag" style="background:'+mc2+'22;color:'+mc2+';border:1px solid '+mc2+'40">'+mName(r.module)+'</span>'+
-          uiuxChip+
+          chipsHtml+
           '<span class="tmeta">👤 '+esc(r.author)+'</span>'+
           '<span class="tmeta">📅 '+r.date+'</span>'+
           (r.link&&r.link!=="#"?'<span style="color:#19A2A5;font-size:10px">🔗 '+tr("رابط","Link")+'</span>':"")+
@@ -810,23 +830,20 @@ function buildTop20(data){
       '<th>'+tr("الفكرة","Idea")+'</th>'+
       '<th>'+tr("الحالة","Status")+'</th>'+
       '<th>'+tr("الوحدة","Module")+'</th>'+
-      '<th>'+tr("التصميم","Design")+'</th>'+
-      '<th>UI/UX</th>'+
+      '<th>Tags</th>'+
       '<th>'+tr("التصويتات","Votes")+'</th>'+
     '</tr></thead><tbody>'+
     top.map(function(r,i){
       var sc=S_CFG[r.status]||{ar:r.status,en:r.status,c:"#19A2A5",bg:"#cffafe"};
       var mc2=mc(r.module), bw=Math.max(6,Math.round((r.votes/maxV)*70));
       var rc=i<3?["#F59E0B","#94a3b8","#cd7c2f"][i]:"var(--sub)";
-      var designCell = r.design ? '<span class="tag tag-design">'+esc(r.design)+'</span>' : "";
-      var uiuxCell   = r.uiux   ? '<span class="tag tag-uiux">'+esc(r.uiux)+'</span>'   : "";
+      var tagsCell = buildChips(r);
       return '<tr data-href="'+(r.link||"")+'" onclick="openLink(this)">'+
         '<td style="text-align:center;font-weight:700;color:'+rc+'">'+(i<3?medals[i]:"#"+(i+1))+'</td>'+
         '<td style="white-space:normal;word-break:break-word;min-width:220px;max-width:420px">'+esc(r.content)+'</td>'+
         '<td><span class="tag" style="background:'+sc.bg+';color:'+sc.c+'">'+(lang==="ar"?sc.ar:sc.en)+'</span></td>'+
         '<td><span class="tag" style="background:'+mc2+'22;color:'+mc2+'">'+mName(r.module)+'</span></td>'+
-        '<td>'+designCell+'</td>'+
-        '<td>'+uiuxCell+'</td>'+
+        '<td>'+tagsCell+'</td>'+
         '<td style="text-align:center"><span class="barmini" style="width:'+bw+'px;margin-left:6px;margin-right:6px"></span><b style="color:#F59E0B">'+r.votes+'</b></td>'+
       '</tr>';
     }).join("")+
@@ -852,14 +869,14 @@ function buildTop5(data){
       '<div class="cust-body" id="cb'+i+'">'+
         c.ideas.slice().sort(function(a,b){return b.votes-a.votes;}).map(function(r){
           var sc=S_CFG[r.status]||{ar:r.status,en:r.status,c:"#19A2A5",bg:"#cffafe"};
-          var uiuxChip = r.uiux ? '<span class="tag tag-uiux">🖥️ UI/UX: '+esc(r.uiux)+'</span>' : "";
+          var chipsHtml = buildChips(r);
           return '<div class="cidea-row" data-href="'+(r.link||"")+'" onclick="event.stopPropagation();openLink(this)">'+
             '<b style="color:#F59E0B;min-width:26px;font-size:12px">'+r.votes+'</b>'+
             '<div style="flex:1;min-width:0">'+
               '<div style="font-size:11px;line-height:1.5;word-break:break-word;margin-bottom:4px">'+esc(r.content)+'</div>'+
               '<div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">'+
                 '<span class="tag" style="background:'+sc.bg+';color:'+sc.c+'">'+(lang==="ar"?sc.ar:sc.en)+'</span>'+
-                uiuxChip+
+                chipsHtml+
                 (r.link&&r.link!=="#"?'<span style="color:#19A2A5;font-size:10px">🔗</span>':"")+
               '</div>'+
             '</div>'+
