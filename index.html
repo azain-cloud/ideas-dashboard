@@ -469,7 +469,8 @@ function parseRawEcosystemData(rawRows){
     var uiuxVal = isFalsy(rawUiux) ? "" : rawUiux;
     return {
       id:       getField(row,"Idea_idx")||"unknown",
-      content:  getField(row,"Idea_content")||"",
+      content_ar: (getField(row,"Idea_content_AR")||getField(row,"Idea_content")||""),
+      content_en: (getField(row,"Idea_content_EN")||""),
       votes:    parseInt(getField(row,"Vote_count"),10)||0,
       module:   getField(row,"Module")||"General",
       status:   getField(row,"Status")||"Idea Added",
@@ -488,6 +489,19 @@ function parseRawEcosystemData(rawRows){
   ALL_MODULES.push( ...[...new Set(RAW.map(function(r){return r.module;}).filter(Boolean))]);
   // UI/UX: collect unique non-empty values for the filter dropdown
   ALL_UIUXS.push(...[...new Set(RAW.map(function(r){return r.uiux;}).filter(Boolean))]);
+
+  // Default filter: exclude launched ideas — pre-select all non-launched statuses
+  var nonLaunched = ALL_STATUSES.filter(function(s){return !isLaunched(s);});
+  ["i","a","t"].forEach(function(scope){
+    F[scope].status = nonLaunched.slice();
+    ["msIS","msAS","msTS"].forEach(function(msId){
+      if(MS_MAP[msId] && MS_MAP[msId].scope===scope) MS_SEL[msId] = nonLaunched.slice();
+    });
+  });
+  // Use correct msId per scope
+  MS_SEL["msIS"] = nonLaunched.slice();
+  MS_SEL["msAS"] = nonLaunched.slice();
+  MS_SEL["msTS"] = nonLaunched.slice();
 
   var today=getToday();
   ["iDateTo","aDateTo","tDateTo"].forEach(function(id){var el=document.getElementById(id);if(el&&!el.value)el.value=today;});
@@ -699,6 +713,31 @@ function buildChips(r, includeLabel){
 }
 
 // ════════════════════════════════════════════════════
+// CONTENT LANGUAGE HELPER
+// ════════════════════════════════════════════════════
+// Returns the idea text in the current display language.
+// Falls back to content_ar if no EN translation exists.
+function rContent(r){
+  if(lang==="en" && r.content_en && r.content_en.trim()) return r.content_en;
+  return r.content_ar || r.content_en || "";
+}
+
+// ════════════════════════════════════════════════════
+// IDEA AGE HELPER
+// ════════════════════════════════════════════════════
+// Returns a human-readable age string e.g. "3y 2m" or "45d"
+function ideaAge(dateStr){
+  if(!dateStr) return "";
+  var created = new Date(dateStr);
+  if(isNaN(created)) return "";
+  var now = new Date();
+  var diffMs = now - created;
+  if(diffMs < 0) return "";
+  var days = Math.floor(diffMs / (1000*60*60*24));
+  return days+"d";
+}
+
+// ════════════════════════════════════════════════════
 // IDEAS TAB
 // ════════════════════════════════════════════════════
 function getIdeasData(){
@@ -706,7 +745,7 @@ function getIdeasData(){
   F.i.to=document.getElementById("iDateTo").value;
   var search=(document.getElementById("searchInput").value||"").toLowerCase();
   var d=getF("i");
-  if(search) d=d.filter(function(r){return(r.content||"").toLowerCase().includes(search)||(r.author||"").toLowerCase().includes(search);});
+  if(search) d=d.filter(function(r){return(rContent(r)||"").toLowerCase().includes(search)||(r.content_ar||"").toLowerCase().includes(search)||(r.content_en||"").toLowerCase().includes(search)||(r.author||"").toLowerCase().includes(search);});
   var sort=document.getElementById("sortSel").value;
   return d.sort(function(a,b){return sort==="votes"?b.votes-a.votes:b.date.localeCompare(a.date);});
 }
@@ -726,13 +765,13 @@ function renderIdeas(){
     return '<div class="idea-row" style="border-right:4px solid '+mc2+'" data-href="'+(r.link||"")+'" onclick="openLink(this)">'+
       '<div class="ivote"><div class="ivnum" style="color:'+vc+'">'+r.votes+'</div><div class="ivlbl">🗳️</div></div>'+
       '<div class="ibody">'+
-        '<div class="itxt">'+esc(r.content)+'</div>'+
+        '<div class="itxt">'+esc(rContent(r))+'</div>'+
         '<div class="itags">'+
           '<span class="tag" style="background:'+sc.bg+';color:'+sc.c+'">'+(lang==="ar"?sc.ar:sc.en)+'</span>'+
           '<span class="tag" style="background:'+mc2+'22;color:'+mc2+';border:1px solid '+mc2+'40">'+mName(r.module)+'</span>'+
           chipsHtml+
           '<span class="tmeta">👤 '+esc(r.author)+'</span>'+
-          '<span class="tmeta">📅 '+r.date+'</span>'+
+          '<span class="tmeta">📅 '+r.date+(ideaAge(r.date)?' · ⏱ '+ideaAge(r.date):'')+'</span>'+
           (r.link&&r.link!=="#"?'<span style="color:#19A2A5;font-size:10px">🔗 '+tr("رابط","Link")+'</span>':"")+
         '</div>'+
       '</div></div>';
@@ -767,8 +806,9 @@ function updateKPIs(data){
 
 function resetIdeas(){
   var today=getToday();
-  F.i={status:[],module:[],uiux:[],from:DATE_MIN,to:today};
-  MS_SEL["msIS"]=[]; MS_SEL["msIM"]=[]; MS_SEL["msIU"]=[];
+  var nonLaunched=ALL_STATUSES.filter(function(s){return !isLaunched(s);});
+  F.i={status:nonLaunched.slice(),module:[],uiux:[],from:DATE_MIN,to:today};
+  MS_SEL["msIS"]=nonLaunched.slice(); MS_SEL["msIM"]=[]; MS_SEL["msIU"]=[];
   document.getElementById("searchInput").value="";
   document.getElementById("iDateFrom").value=DATE_MIN;
   document.getElementById("iDateTo").value=today;
@@ -791,8 +831,9 @@ function runAnalysis(){
 }
 function resetAnalysis(){
   var today=getToday();
-  F.a={status:[],module:[],uiux:[],from:DATE_MIN,to:today};
-  MS_SEL["msAS"]=[]; MS_SEL["msAM"]=[]; MS_SEL["msAU"]=[];
+  var nonLaunched=ALL_STATUSES.filter(function(s){return !isLaunched(s);});
+  F.a={status:nonLaunched.slice(),module:[],uiux:[],from:DATE_MIN,to:today};
+  MS_SEL["msAS"]=nonLaunched.slice(); MS_SEL["msAM"]=[]; MS_SEL["msAU"]=[];
   document.getElementById("aDateFrom").value=DATE_MIN;
   document.getElementById("aDateTo").value=today;
   ["msAS","msAM","msAU"].forEach(updateMsLabel);
@@ -831,6 +872,7 @@ function buildTop20(data){
       '<th>'+tr("الحالة","Status")+'</th>'+
       '<th>'+tr("الوحدة","Module")+'</th>'+
       '<th>Tags</th>'+
+      '<th>'+tr("العمر","Age")+'</th>'+
       '<th>'+tr("التصويتات","Votes")+'</th>'+
     '</tr></thead><tbody>'+
     top.map(function(r,i){
@@ -840,10 +882,11 @@ function buildTop20(data){
       var tagsCell = buildChips(r);
       return '<tr data-href="'+(r.link||"")+'" onclick="openLink(this)">'+
         '<td style="text-align:center;font-weight:700;color:'+rc+'">'+(i<3?medals[i]:"#"+(i+1))+'</td>'+
-        '<td style="white-space:normal;word-break:break-word;min-width:220px;max-width:420px">'+esc(r.content)+'</td>'+
+        '<td style="white-space:normal;word-break:break-word;min-width:220px;max-width:420px">'+esc(rContent(r))+'</td>'+
         '<td><span class="tag" style="background:'+sc.bg+';color:'+sc.c+'">'+(lang==="ar"?sc.ar:sc.en)+'</span></td>'+
         '<td><span class="tag" style="background:'+mc2+'22;color:'+mc2+'">'+mName(r.module)+'</span></td>'+
         '<td>'+tagsCell+'</td>'+
+        '<td style="text-align:center;color:var(--sub);font-size:10px">'+ideaAge(r.date)+'</td>'+
         '<td style="text-align:center"><span class="barmini" style="width:'+bw+'px;margin-left:6px;margin-right:6px"></span><b style="color:#F59E0B">'+r.votes+'</b></td>'+
       '</tr>';
     }).join("")+
@@ -873,7 +916,7 @@ function buildTop5(data){
           return '<div class="cidea-row" data-href="'+(r.link||"")+'" onclick="event.stopPropagation();openLink(this)">'+
             '<b style="color:#F59E0B;min-width:26px;font-size:12px">'+r.votes+'</b>'+
             '<div style="flex:1;min-width:0">'+
-              '<div style="font-size:11px;line-height:1.5;word-break:break-word;margin-bottom:4px">'+esc(r.content)+'</div>'+
+              '<div style="font-size:11px;line-height:1.5;word-break:break-word;margin-bottom:4px">'+esc(rContent(r))+'</div>'+
               '<div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">'+
                 '<span class="tag" style="background:'+sc.bg+';color:'+sc.c+'">'+(lang==="ar"?sc.ar:sc.en)+'</span>'+
                 chipsHtml+
@@ -915,8 +958,9 @@ function runTrends(){
 }
 function resetTrends(){
   var today=getToday();
-  F.t={status:[],module:[],uiux:[],from:DATE_MIN,to:today,iv:"monthly"};
-  MS_SEL["msTS"]=[]; MS_SEL["msTM"]=[]; MS_SEL["msTU"]=[];
+  var nonLaunched=ALL_STATUSES.filter(function(s){return !isLaunched(s);});
+  F.t={status:nonLaunched.slice(),module:[],uiux:[],from:DATE_MIN,to:today,iv:"monthly"};
+  MS_SEL["msTS"]=nonLaunched.slice(); MS_SEL["msTM"]=[]; MS_SEL["msTU"]=[];
   document.getElementById("tDateFrom").value=DATE_MIN;
   document.getElementById("tDateTo").value=today;
   document.getElementById("ivSel").value="monthly";
