@@ -869,24 +869,30 @@ function buildTop20(data){
     '<thead><tr>'+
       '<th>#</th>'+
       '<th>'+tr("الفكرة","Idea")+'</th>'+
-      '<th>'+tr("الحالة","Status")+'</th>'+
-      '<th>'+tr("الوحدة","Module")+'</th>'+
-      '<th>Tags</th>'+
-      '<th>'+tr("العمر","Age")+'</th>'+
-      '<th>'+tr("التصويتات","Votes")+'</th>'+
+      '<th style="text-align:center">'+tr("الحالة","Status")+'</th>'+
+      '<th style="text-align:center">'+tr("الوحدة","Module")+'</th>'+
+      '<th style="text-align:center">Tags</th>'+
+      '<th style="text-align:center">'+tr("العمر","Age")+'</th>'+
+      '<th style="text-align:center">'+tr("التصويتات","Votes")+'</th>'+
     '</tr></thead><tbody>'+
     top.map(function(r,i){
       var sc=S_CFG[r.status]||{ar:r.status,en:r.status,c:"#19A2A5",bg:"#cffafe"};
       var mc2=mc(r.module), bw=Math.max(6,Math.round((r.votes/maxV)*70));
       var rc=i<3?["#F59E0B","#94a3b8","#cd7c2f"][i]:"var(--sub)";
       var tagsCell = buildChips(r);
+      // Conditional formatting: non-launched + votes>=20 + age>=90d → bold red age
+      var ageDays = r.date ? Math.floor((new Date()-new Date(r.date))/(1000*60*60*24)) : 0;
+      var ageStr  = ideaAge(r.date);
+      var ageHtml = (ageStr && !isLaunched(r.status) && r.votes>=20 && ageDays>=90)
+        ? '<b style="color:#EF4444">'+ageStr+'</b>'
+        : '<span style="color:var(--sub)">'+ageStr+'</span>';
       return '<tr data-href="'+(r.link||"")+'" onclick="openLink(this)">'+
         '<td style="text-align:center;font-weight:700;color:'+rc+'">'+(i<3?medals[i]:"#"+(i+1))+'</td>'+
         '<td style="white-space:normal;word-break:break-word;min-width:220px;max-width:420px">'+esc(rContent(r))+'</td>'+
-        '<td><span class="tag" style="background:'+sc.bg+';color:'+sc.c+'">'+(lang==="ar"?sc.ar:sc.en)+'</span></td>'+
-        '<td><span class="tag" style="background:'+mc2+'22;color:'+mc2+'">'+mName(r.module)+'</span></td>'+
-        '<td>'+tagsCell+'</td>'+
-        '<td style="text-align:center;color:var(--sub);font-size:10px">'+ideaAge(r.date)+'</td>'+
+        '<td style="text-align:center"><span class="tag" style="background:'+sc.bg+';color:'+sc.c+'">'+(lang==="ar"?sc.ar:sc.en)+'</span></td>'+
+        '<td style="text-align:center"><span class="tag" style="background:'+mc2+'22;color:'+mc2+'">'+mName(r.module)+'</span></td>'+
+        '<td style="text-align:center">'+tagsCell+'</td>'+
+        '<td style="text-align:center;font-size:11px">'+ageHtml+'</td>'+
         '<td style="text-align:center"><span class="barmini" style="width:'+bw+'px;margin-left:6px;margin-right:6px"></span><b style="color:#F59E0B">'+r.votes+'</b></td>'+
       '</tr>';
     }).join("")+
