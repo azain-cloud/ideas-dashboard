@@ -705,9 +705,9 @@ function buildChips(r){
   if(r.design) chips += '<span class="tag tag-design">&#127912; '+tr("تصميم","Design")+'</span>';
   if(r.uiux){
     var v = r.uiux.toUpperCase();
-    if(v==="UI")      chips += '<span class="tag tag-ui">&#128507; UI</span>';
+    if(v==="UI")      chips += '<span class="tag tag-ui">&#128421;&#65039; UI</span>';
     else if(v==="UX") chips += '<span class="tag tag-ux">&#9999;&#65039; UX</span>';
-    else              chips += '<span class="tag tag-ui">&#128507; '+esc(r.uiux)+'</span>';
+    else              chips += '<span class="tag tag-ui">&#128421;&#65039; '+esc(r.uiux)+'</span>';
   }
   return chips;
 }
