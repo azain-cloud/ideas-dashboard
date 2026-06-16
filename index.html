@@ -697,17 +697,17 @@ document.addEventListener("click",function(e){
 // CHIP BUILDER — Design / UI / UX
 // ════════════════════════════════════════════════════
 // Returns HTML string of chips for a record.
-// design = "Yes"/truthy → 🎨 Design chip
-// uiux   = "UI"         → 🖥 UI chip
-// uiux   = "UX"         → ✏️ UX chip
-function buildChips(r, includeLabel){
+// design = "Yes"/truthy → Design chip
+// uiux   = "UI"         → UI chip
+// uiux   = "UX"         → UX chip
+function buildChips(r){
   var chips = "";
-  if(r.design) chips += '<span class="tag tag-design">🎨 Design</span>';
+  if(r.design) chips += '<span class="tag tag-design">&#127912; '+tr("تصميم","Design")+'</span>';
   if(r.uiux){
     var v = r.uiux.toUpperCase();
-    if(v==="UI")      chips += '<span class="tag tag-ui">🖥 UI</span>';
-    else if(v==="UX") chips += '<span class="tag tag-ux">✏️ UX</span>';
-    else              chips += '<span class="tag tag-ui">🖥 '+esc(r.uiux)+'</span>';
+    if(v==="UI")      chips += '<span class="tag tag-ui">&#128507; UI</span>';
+    else if(v==="UX") chips += '<span class="tag tag-ux">&#9999;&#65039; UX</span>';
+    else              chips += '<span class="tag tag-ui">&#128507; '+esc(r.uiux)+'</span>';
   }
   return chips;
 }
