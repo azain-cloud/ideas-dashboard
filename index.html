@@ -53,6 +53,13 @@ body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:v
 
 /* ── SYNC STATUS ── */
 #syncStatus{font-size:11px;font-weight:400;color:var(--t4);white-space:nowrap;display:flex;align-items:center;gap:4px;transition:color .3s;margin-inline-start:auto;padding:0 6px}
+.update-btn{background:var(--t2);color:#fff;border:none;border-radius:16px;padding:4px 12px;cursor:pointer;font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;transition:opacity .2s,transform .15s;flex-shrink:0}
+.update-btn:hover{opacity:.88}
+.update-btn:active{transform:scale(.96)}
+.update-btn:disabled{opacity:.5;cursor:not-allowed}
+.update-btn.syncing{background:var(--orange)}
+.update-btn .spin{display:inline-block;animation:spinIcon 1s linear infinite}
+@keyframes spinIcon{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .tabs{display:flex;gap:2px;align-items:center;justify-content:space-between}
 .tab-btn{background:transparent;color:var(--sub);border:none;border-bottom:2px solid transparent;padding:7px 18px;cursor:pointer;font-size:13px;font-weight:500;transition:all .2s;white-space:nowrap}
 .tab-btn.active{color:var(--t2);font-weight:700;border-bottom-color:var(--t2)}
@@ -233,6 +240,7 @@ body.ltr .ms-drop{right:auto;left:0}
     <button class="tab-btn" id="tabAnalysis" onclick="switchTab('analysis')">📊 التحليل</button>
     <button class="tab-btn" id="tabTrends" onclick="switchTab('trends')">📈 الاتجاهات</button>
     <span id="syncStatus">🔄 Fetching data...</span>
+    <button class="update-btn" id="updateNowBtn" onclick="triggerManualSync()">🔁 <span id="updateNowLbl">Update Now</span></button>
   </div>
 </div>
 
@@ -447,6 +455,132 @@ function initDashboardLiveSync() {
 }
 
 // ════════════════════════════════════════════════════
+// MANUAL "UPDATE NOW" — triggers n8n via Apps Script, polls for completion
+// ════════════════════════════════════════════════════
+var UPDATE_MSGS={
+  idle:      {ar:"تحديث الآن",        en:"Update Now"},
+  triggering:{ar:"جارٍ البدء...",      en:"Starting..."},
+  syncing:   {ar:"التحديث جارٍ...",    en:"Syncing..."},
+  longwait:  {ar:"لا يزال يعمل...",    en:"Still working..."},
+  done:      {ar:"تم التحديث ✓",       en:"Updated ✓"},
+  failed:    {ar:"حاول مرة أخرى",      en:"Try again"},
+};
+var _updateState   = "idle";
+var _pollTimer      = null;
+var _pollAttempts   = 0;
+var _pollMaxAttempts = 26;      // ~26 * 7s ≈ 3 min before showing "still working"
+var _pollHardStop    = 60;      // ~60 * 7s ≈ 7 min absolute ceiling before giving up
+var _lastSyncBefore  = null;    // timestamp snapshot captured at trigger time
+
+function setUpdateBtnState(state){
+  _updateState = state;
+  var btn = document.getElementById("updateNowBtn");
+  var lbl = document.getElementById("updateNowLbl");
+  if(!btn || !lbl) return;
+  var msg = UPDATE_MSGS[state] || UPDATE_MSGS.idle;
+  lbl.textContent = msg[lang];
+  btn.classList.toggle("syncing", state==="triggering"||state==="syncing"||state==="longwait");
+  btn.disabled = (state==="triggering"||state==="syncing"||state==="longwait");
+  var iconSpan = btn.querySelector(".spin");
+  // Rebuild icon: spinning while busy, static otherwise
+  var icon = (state==="triggering"||state==="syncing"||state==="longwait") ? '<span class="spin">🔁</span>' : "🔁";
+  btn.innerHTML = icon + ' <span id="updateNowLbl">'+msg[lang]+'</span>';
+}
+
+function triggerManualSync(){
+  if(_updateState==="triggering"||_updateState==="syncing"||_updateState==="longwait") return; // already running
+  setUpdateBtnState("triggering");
+
+  var token = sessionStorage.getItem("gsi_credential") || "";
+  var cbName = "triggerCb_" + Date.now();
+
+  window[cbName] = function(json){
+    var s = document.getElementById("_triggerScript");
+    if(s) s.parentNode.removeChild(s);
+    delete window[cbName];
+    if(!json || json.error || json.status==="error"){
+      console.error("Trigger error:", json ? (json.error||json.status) : "no response");
+      setUpdateBtnState("failed");
+      setTimeout(function(){ setUpdateBtnState("idle"); }, 4000);
+      return;
+    }
+    // Workflow triggered successfully — start polling for completion
+    setUpdateBtnState("syncing");
+    _pollAttempts = 0;
+    fetchLastSyncSnapshot(function(beforeTs){
+      _lastSyncBefore = beforeTs;
+      _pollTimer = setInterval(pollForSyncCompletion, 7000);
+    });
+  };
+
+  var script = document.createElement("script");
+  script.id  = "_triggerScript";
+  script.src = APPS_SCRIPT_URL + "?action=trigger_sync&callback=" + cbName + "&token=" + encodeURIComponent(token);
+  script.onerror = function(){
+    delete window[cbName];
+    setUpdateBtnState("failed");
+    setTimeout(function(){ setUpdateBtnState("idle"); }, 4000);
+  };
+  document.body.appendChild(script);
+}
+
+// Reads the current last-sync timestamp from Apps Script (may be empty until Meta sheet is wired up)
+function fetchLastSyncSnapshot(onResult){
+  var token = sessionStorage.getItem("gsi_credential") || "";
+  var cbName = "lastSyncCb_" + Date.now();
+  window[cbName] = function(json){
+    var s = document.getElementById("_lastSyncScript");
+    if(s) s.parentNode.removeChild(s);
+    delete window[cbName];
+    var ts = (json && json.status==="ok") ? (json.lastSync||"") : "";
+    onResult(ts);
+  };
+  var script = document.createElement("script");
+  script.id  = "_lastSyncScript";
+  script.src = APPS_SCRIPT_URL + "?action=get_last_sync&callback=" + cbName + "&token=" + encodeURIComponent(token);
+  script.onerror = function(){ delete window[cbName]; onResult(""); };
+  document.body.appendChild(script);
+}
+
+function pollForSyncCompletion(){
+  _pollAttempts++;
+
+  // Visual nudge after ~3 minutes so the user knows it's still genuinely working, not stuck
+  if(_pollAttempts === _pollMaxAttempts) setUpdateBtnState("longwait");
+
+  // Absolute ceiling — stop polling forever if something's gone wrong upstream
+  if(_pollAttempts >= _pollHardStop){
+    clearInterval(_pollTimer); _pollTimer=null;
+    setUpdateBtnState("failed");
+    setTimeout(function(){ setUpdateBtnState("idle"); }, 5000);
+    return;
+  }
+
+  fetchLastSyncSnapshot(function(currentTs){
+    // If the Meta sheet / timestamp isn't wired up yet, currentTs stays "" forever —
+    // in that case we can't detect completion, so we fall back to a generous fixed
+    // wait (4 minutes) then just re-fetch data once, rather than polling indefinitely.
+    var timestampFeatureActive = !!currentTs;
+
+    if(timestampFeatureActive && _lastSyncBefore !== null && currentTs !== _lastSyncBefore){
+      // Timestamp changed — n8n finished, fresh data is in the Sheet
+      clearInterval(_pollTimer); _pollTimer=null;
+      setUpdateBtnState("done");
+      initDashboardLiveSync(); // re-fetch full dataset
+      setTimeout(function(){ setUpdateBtnState("idle"); }, 4000);
+      return;
+    }
+
+    if(!timestampFeatureActive && _pollAttempts >= 34){ // ~4 min fallback when no timestamp wired up
+      clearInterval(_pollTimer); _pollTimer=null;
+      setUpdateBtnState("done");
+      initDashboardLiveSync();
+      setTimeout(function(){ setUpdateBtnState("idle"); }, 4000);
+    }
+  });
+}
+
+// ════════════════════════════════════════════════════
 // DATA PARSING
 // ════════════════════════════════════════════════════
 function getField(obj,name){
@@ -588,6 +722,7 @@ function applyLang(){
   var si=document.getElementById("searchInput");
   if(si) si.placeholder="🔍  "+(lang==="ar"?"بحث في الأفكار...":"Search ideas...");
   renderSyncStatus();
+  setUpdateBtnState(_updateState); // refresh button label in new language without changing state
 }
 
 var LOGO_AR=document.getElementById("brandLogo").outerHTML;
